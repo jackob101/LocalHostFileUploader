@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.websocket.server.PathParam;
+import java.util.List;
 
 @Controller
 public class UploadController {
@@ -19,9 +20,9 @@ public class UploadController {
     }
 
     @PostMapping("/upload")
-    public String uploadFile(@PathParam("file")MultipartFile file, RedirectAttributes redirectAttributes){
+    public String uploadFile(@PathParam("files") List<MultipartFile> files, RedirectAttributes redirectAttributes){
 
-        fileService.save(file);
+        files.forEach(fileService::save);
 
         return "redirect:/";
     }
