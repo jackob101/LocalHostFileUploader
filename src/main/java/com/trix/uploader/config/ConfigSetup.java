@@ -32,7 +32,7 @@ public class ConfigSetup {
                         "Press \"Enter\" to accept default or input new path \n");
 
         if (userLocation.length() == 0)
-            userLocation = jarLocation + "/upload";
+            userLocation = jarLocation + "/upload/";
 
         try {
             Files.createDirectories(Paths.get(userLocation));

@@ -1,6 +1,7 @@
 package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,8 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class FileService {
 
-    private final String FILES_PATH = "./uploadContent/";
+    @Value("${upload.location}")
+    private String filesPath;
 
     public boolean save(MultipartFile file) {
         if (file.isEmpty())
@@ -23,7 +25,7 @@ public class FileService {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         try {
-            Path path = Paths.get(FILES_PATH + fileName);
+            Path path = Paths.get(filesPath + fileName);
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {
