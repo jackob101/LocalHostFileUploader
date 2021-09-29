@@ -11,7 +11,10 @@
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <h2>Upload File Example</h2>
-                <p th:text="${message}" th:if="${message ne null}" class="alert alert-primary"></p>
+                <div th:if="${isSaved ne null}">
+                    <p th:if="${isSaved}" class="alert alert-success">Saved successfully</p>
+                    <p th:unless="${isSaved}" class="alert alert-warning">Something went wrong</p>
+                </div>
                 <form method="post" th:action="@{/upload}" enctype="multipart/form-data">
                     <div class="form-group">
                         <input type="file" name="files" class="form-control-file" multiple>
