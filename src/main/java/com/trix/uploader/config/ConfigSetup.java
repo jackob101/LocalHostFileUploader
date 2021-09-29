@@ -1,5 +1,6 @@
 package com.trix.uploader.config;
 
+import com.trix.uploader.UploaderApplication;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -58,7 +59,7 @@ public class ConfigSetup {
 
         String configLocation = System.getProperty("user.dir");
 
-        File config = new File(configLocation + "/config.properties");
+        File config = new File(configLocation + "/" + UploaderApplication.configFileName);
 
         try {
             FileWriter configWriter = new FileWriter(config);
