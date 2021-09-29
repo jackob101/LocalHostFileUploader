@@ -4,12 +4,10 @@ import com.trix.uploader.config.ConfigSetup;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.net.URISyntaxException;
-
 @SpringBootApplication
 public class UploaderApplication {
 
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) {
 
         boolean runConfig = false;
 
@@ -17,7 +15,7 @@ public class UploaderApplication {
 
             if (arg.equalsIgnoreCase("config")) {
                 runConfig = true;
-                new ConfigSetup().config();
+                new ConfigSetup().configSetup();
                 break;
             }
 

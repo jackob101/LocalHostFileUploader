@@ -22,7 +22,7 @@ public class ConfigSetup {
         jarLocation = System.getProperty("user.dir");
     }
 
-    public void config() {
+    public void configSetup() {
         Map<String, Object> options = new HashMap<>();
 
         String userLocation =
