@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class UploaderApplication {
 
+    public static String configFileName = "config.properties";
+
     public static void main(String[] args) {
 
         boolean runConfig = false;
