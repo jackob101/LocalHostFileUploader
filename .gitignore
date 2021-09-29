@@ -33,3 +33,4 @@ build/
 .vscode/
 uploadContent
 .env
+application-dev.properties

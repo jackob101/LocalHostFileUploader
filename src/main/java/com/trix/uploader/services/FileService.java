@@ -6,11 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FileService {
@@ -33,5 +36,17 @@ public class FileService {
         }
 
         return false;
+    }
+
+    public List<String> getAllFileNames() {
+        File file = new File(filesPath);
+
+        String[] allFiles = file.list();
+
+        if (allFiles == null)
+            return new ArrayList<>();
+
+        return List.of(allFiles);
+
     }
 }
