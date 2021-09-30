@@ -15,18 +15,22 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class FileService {
 
-    @Value("${upload.location}")
     private String filesPath;
+
+    public FileService(@Value("${upload.location}") String filesPath) {
+        this.filesPath = filesPath;
+    }
 
     public boolean save(MultipartFile file) {
         if (file.isEmpty())
             throw new EmptyFileException();
 
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
         try {
             Path path = Paths.get(filesPath + fileName);
@@ -40,15 +44,27 @@ public class FileService {
     }
 
     public List<FileModel> getAllFileNames() {
-        File file = new File(filesPath);
 
-        List<FileModel> listOfFiles = new ArrayList<>();
-        for (File entry : file.listFiles()) {
-            listOfFiles.add(new FileModel(entry.getName(), entry.isDirectory()));
+        return readDirectory(filesPath);
+    }
+
+    private List<FileModel> readDirectory(String path) {
+
+        List<FileModel> fileModelList = new ArrayList<>();
+
+        File file = new File(path);
+
+        for (File entry : Objects.requireNonNull(file.listFiles())) {
+
+            if (entry.isDirectory()) {
+                List<FileModel> subFiles = readDirectory(entry.getPath());
+                fileModelList.add(new FileModel(entry.getName(), true, subFiles));
+            } else {
+                fileModelList.add(new FileModel(entry.getName()));
+            }
+
         }
 
-        return listOfFiles;
-
-
+        return fileModelList;
     }
 }
