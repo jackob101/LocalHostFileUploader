@@ -1,6 +1,7 @@
 package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
+import com.trix.uploader.model.FileModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -38,15 +39,16 @@ public class FileService {
         return false;
     }
 
-    public List<String> getAllFileNames() {
+    public List<FileModel> getAllFileNames() {
         File file = new File(filesPath);
 
-        String[] allFiles = file.list();
+        List<FileModel> listOfFiles = new ArrayList<>();
+        for (File entry : file.listFiles()) {
+            listOfFiles.add(new FileModel(entry.getName(), entry.isDirectory()));
+        }
 
-        if (allFiles == null)
-            return new ArrayList<>();
+        return listOfFiles;
 
-        return List.of(allFiles);
 
     }
 }
