@@ -1,58 +1,85 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <title>File Uploader</title>
 
-    <div th:insert="fragments/Config :: css-links">
-
-    </div>
+    <div th:insert="fragments/Config :: css-links"></div>
 </head>
 
 <body>
-
 <section class="my-5">
     <div class="container">
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <div th:if="${isSaved ne null}">
-                    <p th:if="${isSaved}" class="alert alert-success">Saved successfully</p>
-                    <p th:unless="${isSaved}" class="alert alert-warning">Something went wrong</p>
+                    <p th:if="${isSaved}" class="alert alert-success">
+                        Saved successfully
+                    </p>
+                    <p th:unless="${isSaved}" class="alert alert-warning">
+                        Something went wrong
+                    </p>
                 </div>
-                <form method="post" th:action="@{/upload}" enctype="multipart/form-data"
-                      class="d-flex flex-column justify-content-center">
+                <form
+                        method="post"
+                        th:action="@{/upload}"
+                        enctype="multipart/form-data"
+                        class="d-flex flex-column justify-content-center"
+                >
                     <div class="form-group d-flex justify-content-center">
-                        <input type="file" name="files" class="form-control-file" multiple>
+                        <input
+                                type="file"
+                                name="files"
+                                class="form-control-file"
+                                multiple
+                        />
                     </div>
-                    <button type="submit" class="btn btn-primary mx-auto my-4">Upload File</button>
+                    <button type="submit" class="btn btn-primary mx-auto my-4">
+                        Upload File
+                    </button>
                 </form>
             </div>
-            <table class="table table-striped custab">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>File name</th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tr th:each="entry,iterStat : ${files}">
-                    <td th:text="${iterStat.count}"></td>
-                    <td th:text="${entry.fileName}" th:class="${entry.isDirectory} ? 'text-primary'"></td>
-                    <td class="text-center"><a class='btn btn-info btn-xs' href="#">Edit</a>
-                        <a href="#" class="btn btn-danger btn-xs"> Del</a>
-                    </td>
-                </tr>
 
-
-            </table>
-
-
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" aria-current="page">
+                        <a th:href="@{/}">root</a>
+                    </li>
+                    <li
+                            th:each="entry, status : ${currentPath}"
+                            th:class="'breadcrumb-item ' + ${status.count == #arrays.length(currentPath) ? 'active' : '' }"
+                            th:with="path = ${path + '/' + entry}"
+                    >
+                <span
+                        th:if="${status.count == #arrays.length(currentPath)}"
+                        th:text="${path}"
+                ></span>
+                        <a
+                                th:unless="${status.count == #arrays.length(currentPath)}"
+                                th:href="@{/(path=${path})}"
+                                th:text="${entry}"
+                        ></a>
+                    </li>
+                </ol>
+            </nav>
+            <ol>
+                <li th:each="file, status : ${files}">
+                    <div class="d-flex flex-row">
+                <span
+                        th:unless="${file.isDirectory}"
+                        th:text="${file.name}"
+                ></span>
+                        <a
+                                th:if="${file.isDirectory}"
+                                th:href="@{/(path=${file.path +'/'+ file.name + '/'})}"
+                                th:text="${file.name}"
+                        ></a>
+                    </div>
+                </li>
+            </ol>
         </div>
     </div>
 </section>
 
 <div th:insert="fragments/Config :: scripts-links"></div>
-
 </body>
-
 </html>
