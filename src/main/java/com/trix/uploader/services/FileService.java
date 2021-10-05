@@ -43,28 +43,26 @@ public class FileService {
         return false;
     }
 
-    public List<FileModel> getAllFileNames() {
+    public List<FileModel> getFilesUnderPath(String path) {
+        ArrayList<FileModel> files = new ArrayList<>();
 
-        return readDirectory(filesPath);
-    }
+        if (path.length() > 0 && path.charAt(0) == '/') {
+            path = path.substring(1);
+        }
 
-    private List<FileModel> readDirectory(String path) {
-
-        List<FileModel> fileModelList = new ArrayList<>();
-
-        File file = new File(path);
+        File file = new File(filesPath + path);
 
         for (File entry : Objects.requireNonNull(file.listFiles())) {
 
             if (entry.isDirectory()) {
-                List<FileModel> subFiles = readDirectory(entry.getPath());
-                fileModelList.add(new FileModel(entry.getName(), true, subFiles));
+                files.add(new FileModel(entry.getName(), path, true));
             } else {
-                fileModelList.add(new FileModel(entry.getName()));
+                files.add(new FileModel(entry.getName(), path));
             }
 
         }
 
-        return fileModelList;
+        return files;
     }
+
 }
