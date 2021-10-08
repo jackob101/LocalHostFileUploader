@@ -1,13 +1,13 @@
 package com.trix.uploader.controllers.api;
 
-import com.trix.uploader.model.FileModel;
 import com.trix.uploader.services.FileService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -20,7 +20,10 @@ public class FilesController {
     }
 
     @GetMapping("getFiles")
-    public List<FileModel> getFilesUnderPath(@RequestParam("path") String path) {
-        return fileService.getFilesUnderPath(path);
+    public Map<String, Object> getFilesUnderPath(@RequestParam("path") String path) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("files", fileService.getFilesUnderPath(path));
+        response.put("path", path);
+        return response;
     }
 }
