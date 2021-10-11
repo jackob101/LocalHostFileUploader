@@ -1,10 +1,9 @@
 package com.trix.uploader.controllers.api;
 
 import com.trix.uploader.services.FileService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,5 +24,17 @@ public class FilesController {
         response.put("files", fileService.getFilesUnderPath(path));
         response.put("path", path);
         return response;
+    }
+
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files) {
+
+        for (MultipartFile file : files) {
+            fileService.save(file);
+        }
+
+        //TODO Temporary implementation
+        return new HashMap<>();
     }
 }
