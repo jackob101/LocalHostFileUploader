@@ -28,10 +28,14 @@ public class FilesController {
 
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files) {
+    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files, @RequestPart(required = false) String path) {
+
+        if (path == null) {
+            path = "";
+        }
 
         for (MultipartFile file : files) {
-            fileService.save(file);
+            fileService.save(file, path.split("/"));
         }
 
         //TODO Temporary implementation

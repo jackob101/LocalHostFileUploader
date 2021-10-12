@@ -22,10 +22,10 @@ public class UploadController {
     @PostMapping("/upload")
     public String uploadFile(@PathParam("files") List<MultipartFile> files, RedirectAttributes redirectAttributes){
 
-        files.forEach(file -> {
-            boolean isSaved = fileService.save(file);
-            redirectAttributes.addFlashAttribute("isSaved", isSaved);
-        });
+//        files.forEach(file -> {
+//            boolean isSaved = fileService.save(file);
+//            redirectAttributes.addFlashAttribute("isSaved", isSaved);
+//        });
 
         return "redirect:/";
     }

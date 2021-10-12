@@ -15,44 +15,63 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
 
 @Service
 public class FileService {
 
-    private String filesPath;
+    private final Path uploadDirectory;
 
     public FileService(@Value("${upload.location}") String filesPath) {
-        this.filesPath = filesPath;
+        String[] arrayPath = stream(filesPath.split("/"))
+                .filter(s -> !s.isEmpty())
+                .toArray(String[]::new);
+
+        //TODO add dynamic way to get root path
+        this.uploadDirectory = Paths.get("/", arrayPath);
     }
 
-    public boolean save(MultipartFile file) {
-        if (file.isEmpty())
+    public boolean save(MultipartFile file, String[] path) {
+        return save(file, Path.of("", path));
+    }
+
+    public boolean save(MultipartFile file, Path requestUploadPath) {
+
+        if (file == null || file.isEmpty())
             throw new EmptyFileException();
 
-        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        String fileName = StringUtils.cleanPath(requireNonNull(file.getOriginalFilename()));
+        Path finalPath = this.uploadDirectory.resolve(requestUploadPath);
 
         try {
-            Path path = Paths.get(filesPath + fileName);
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            return true;
+            Files.copy(file.getInputStream(), finalPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    public List<FileModel> getFilesUnderPath(String path) {
-        ArrayList<FileModel> files = new ArrayList<>();
 
-        if (path.length() > 0 && path.charAt(0) == '/') {
-            path = path.substring(1);
+    public List<FileModel> getFilesUnderPath(String path) {
+
+        ArrayList<FileModel> files = new ArrayList<>();
+        String[] arrayPath;
+
+        if (path.isEmpty()) {
+            arrayPath = new String[0];
+        } else {
+            arrayPath = stream(path.split("/"))
+                    .filter(entry -> !entry.isEmpty())
+                    .toArray(String[]::new);
         }
 
-        File file = new File(filesPath + path);
+        File file = new File(uploadDirectory.resolve(Paths.get("", arrayPath)).toUri());
 
-        for (File entry : Objects.requireNonNull(file.listFiles())) {
+        for (File entry : requireNonNull(file.listFiles())) {
 
             if (entry.isDirectory()) {
                 files.add(new FileModel(entry.getName(), path, true));

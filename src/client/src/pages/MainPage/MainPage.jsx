@@ -42,6 +42,8 @@ const MainPage = () => {
     files.map((entry) => {
       formData.append("files", entry);
     });
+    console.log(path.join("/"));
+    formData.append("path", path.join("/"));
 
     axios
       .post("https://localhost:8443/api/upload", formData, {
