@@ -46,7 +46,7 @@ const useListService = () => {
     setPath(newPath);
   };
 
-  const onFilesSubmit = async (event, uploadedFiles) => {
+  const onFilesSubmit = (event, uploadedFiles) => {
     event.preventDefault();
     let formData = new FormData();
     uploadedFiles.map((entry) => {
@@ -63,9 +63,10 @@ const useListService = () => {
         },
       })
       .then((response) => {
-        let newState = files.concat(response.data.files);
-        console.log(response);
-        setFiles(newState);
+        let newFiles = [...files[1]];
+        newFiles = newFiles.concat(response.data.files);
+        newFiles.sort((a, b) => a.name.localeCompare(b.name));
+        setFiles([files[0], newFiles]);
       });
   };
 
@@ -80,7 +81,10 @@ const useListService = () => {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((response) => {
-        setFiles([...files, response.data.directory]);
+        let newDirectories = [...files[0]];
+        newDirectories.push(response.data.directory);
+        newDirectories.sort((a, b) => a.name.localeCompare(b.name));
+        setFiles([newDirectories, files[1]]);
       });
   };
 
