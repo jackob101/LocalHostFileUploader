@@ -5,7 +5,7 @@ import MainPage from "./pages/MainPage/MainPage";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" style={{ maxHeight: "100vh" }}>
       <Navbar />
       <Switch>
         <Route path="/" exact>

@@ -10,7 +10,7 @@ const UploadPanel = (props) => {
   };
 
   return (
-    <div className="d-flex flex-column p-3" style={{ width: "30%" }}>
+    <div className="d-flex flex-column p-3">
       <form
         className="d-flex flex-column"
         onSubmit={(event) => props.onSubmit(event, files)}

@@ -33,26 +33,28 @@ public class FileService {
         this.uploadDirectory = Paths.get("/", arrayPath);
     }
 
-    public boolean save(MultipartFile file, String[] path) {
+    public FileModel save(MultipartFile file, String[] path) {
         return save(file, Path.of("", path));
     }
 
-    public boolean save(MultipartFile file, Path requestUploadPath) {
+    public FileModel save(MultipartFile file, Path requestUploadPath) {
 
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
 
         String fileName = StringUtils.cleanPath(requireNonNull(file.getOriginalFilename()));
-        Path finalPath = this.uploadDirectory.resolve(requestUploadPath);
+        Path relativeUploadPath = uploadDirectory.resolve(requestUploadPath);
+        Path filePath = relativeUploadPath.resolve(fileName);
 
         try {
-            Files.copy(file.getInputStream(), finalPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            File savedFile = new File(filePath.toUri());
+            return new FileModel(savedFile.getName(), filePath.toString());
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
 
-        return true;
+        return null;
     }
 
 
@@ -84,4 +86,24 @@ public class FileService {
         return files;
     }
 
+    public FileModel createDirectory(String path, String directoryName) {
+
+        if (!path.isEmpty() && path.charAt(0) == '/')
+            path = path.substring(1);
+        String normalizedPath = StringUtils.cleanPath(path);
+
+        Path newDirectoryPath = uploadDirectory.resolve(Paths.get(path));
+        File file;
+        try {
+            Path directories = Files.createDirectories(newDirectoryPath.resolve(Paths.get(directoryName)));
+            file = new File(directories.toUri());
+            FileModel fileModel = new FileModel(directoryName, path, true);
+            return fileModel;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
 }

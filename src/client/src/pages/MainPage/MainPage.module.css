@@ -1,0 +1,8 @@
+.leftPanel {
+  grid-area: auto;
+  min-width: 350px;
+}
+
+.rightPanel {
+  min-width: 350px;
+}

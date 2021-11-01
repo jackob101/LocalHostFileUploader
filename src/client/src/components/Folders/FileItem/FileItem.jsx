@@ -2,7 +2,7 @@ import React from "react";
 
 const FileItem = ({ file, index, onEnterDirectory }) => {
   return (
-    <div className="d-flex flex-row my-4">
+    <div className="d-flex flex-row my-2">
       <div className="me-3 fw-bold">{index + 1}</div>
       {file.directory && (
         <button
