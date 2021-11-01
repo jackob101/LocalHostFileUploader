@@ -5,24 +5,20 @@ import NewDirectoryForm from "../../components/Folders/NewDirectoryForm";
 import PathBreadcrumb from "../../components/Folders/PathBreadcrumb/PathBreadcrumb";
 import UploadPanel from "../../components/Folders/UploadPanel/UploadPanel";
 import useListService from "../../utils/FileListUtils";
+import axios from "axios";
 
 const MainPage = () => {
   const [
     {
       files,
       path,
-      fetchData,
       onFilesSubmit,
       changeCurrentPath,
       onGoToParentDir,
       onEnterDirectory,
       onCreateNewFolder,
     },
-  ] = useListService();
-
-  useEffect(() => {
-    fetchData();
-  }, [path, fetchData]);
+  ] = useListService(axios);
 
   return (
     <div className="container h-100">
