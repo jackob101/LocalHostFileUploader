@@ -88,22 +88,41 @@ public class FileService {
 
     public FileModel createDirectory(String path, String directoryName) {
 
-        if (!path.isEmpty() && path.charAt(0) == '/')
-            path = path.substring(1);
         String normalizedPath = StringUtils.cleanPath(path);
+        Path relativePath = Paths.get(normalizedPath);
 
-        Path newDirectoryPath = uploadDirectory.resolve(Paths.get(path));
-        File file;
-        try {
-            Path directories = Files.createDirectories(newDirectoryPath.resolve(Paths.get(directoryName)));
-            file = new File(directories.toUri());
-            FileModel fileModel = new FileModel(directoryName, path, true);
-            return fileModel;
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (relativePath.isAbsolute())
+            //TODO Add exception handler
+            throw new RuntimeException("Requested path is absolute");
+
+        Path absolutePath = uploadDirectory.resolve(Paths.get(path).resolve(directoryName));
+
+        File file = new File(absolutePath.toUri());
+        FileModel fileModel = null;
+
+        if (file.exists() && file.isDirectory()) {
+            fileModel = new FileModel(file.getName(), path, true);
+        } else {
+
+            try {
+
+                Path directories = Files.createDirectory(absolutePath);
+                File createdDirectory = new File(directories.toUri());
+
+                Path newDirRelativePath = uploadDirectory.relativize(directories);
+                String pathString = "";
+
+                if (newDirRelativePath.getNameCount() >= 2)
+                    pathString = newDirRelativePath.subpath(0, newDirRelativePath.getNameCount() - 1).toString();
+
+                fileModel = new FileModel(directoryName, pathString, true);
+            } catch (IOException e) {
+                //TODO Do some handling on this exception
+                e.printStackTrace();
+            }
         }
 
-        return null;
+        return fileModel;
 
     }
 }
