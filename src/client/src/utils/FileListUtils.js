@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const useListService = () => {
@@ -17,7 +17,7 @@ const useListService = () => {
     files.sort((a, b) => a.name.localeCompare(b.name));
   };
 
-  const fetchData = () => {
+  useEffect(() => {
     axios
       .get("https://localhost:8443/api/getFiles", {
         params: {
@@ -28,7 +28,7 @@ const useListService = () => {
         setFiles(response.data.files);
         sortFileList(response.data.files);
       });
-  };
+  }, [path]);
 
   const changeCurrentPath = (pathIndex) => {
     setPath(path.splice(-1, pathIndex));
@@ -55,7 +55,7 @@ const useListService = () => {
     formData.append("path", path.join("/"));
 
     axios
-      .post("https://localhost:8442/api/upload", formData, {
+      .post("https://localhost:8443/api/upload", formData, {
         headers: {
           Accept: "application/json",
           "Content-Type": "multipart/form-data",
@@ -75,7 +75,7 @@ const useListService = () => {
     formData.append("directoryName", name);
 
     axios
-      .post("https://localhost:8442/api/create_directory", formData, {
+      .post("https://localhost:8443/api/create_directory", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((response) => {
@@ -83,19 +83,16 @@ const useListService = () => {
       });
   };
 
-  return [
-    {
-      files,
-      path,
-      sortFileList,
-      fetchData,
-      onCreateNewFolder,
-      onEnterDirectory,
-      onGoToParentDir,
-      onFilesSubmit,
-      changeCurrentPath,
-    },
-  ];
+  return {
+    files,
+    path,
+    sortFileList,
+    onCreateNewFolder,
+    onEnterDirectory,
+    onGoToParentDir,
+    onFilesSubmit,
+    changeCurrentPath,
+  };
 };
 
 export default useListService;
