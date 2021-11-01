@@ -15,6 +15,8 @@ const useListService = () => {
 
     directories.sort((a, b) => a.name.localeCompare(b.name));
     files.sort((a, b) => a.name.localeCompare(b.name));
+
+    setFiles([directories, files]);
   };
 
   useEffect(() => {
@@ -25,7 +27,6 @@ const useListService = () => {
         },
       })
       .then((response) => {
-        setFiles(response.data.files);
         sortFileList(response.data.files);
       });
   }, [path]);
