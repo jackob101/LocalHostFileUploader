@@ -2,6 +2,7 @@ import { Route, Switch } from "react-router";
 import "./App.css";
 import Navbar from "./components/Navbar/Navbar";
 import MainPage from "./pages/MainPage/MainPage";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <MainPage />
         </Route>
       </Switch>
+      <Toaster />
     </div>
   );
 }
