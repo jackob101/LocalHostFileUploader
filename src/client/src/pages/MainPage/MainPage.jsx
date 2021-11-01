@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ControllsList from "../../components/Folders/Controlls/ControllsList";
 import FilesList from "../../components/Folders/FilesList/FilesList";
 import NewDirectoryForm from "../../components/Folders/NewDirectoryForm";

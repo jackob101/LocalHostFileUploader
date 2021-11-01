@@ -5,7 +5,7 @@ const NewDirectoryForm = (props) => {
 
   return (
     <form
-      onSubmit={(event) => props.onCreateNewFolder(event, name.current.value)}
+      onSubmit={(event) => props.onCreateNewFolder(event, name)}
       className="d-flex flex-row align-items-center"
     >
       <label htmlFor="directoryName" className="p-2">

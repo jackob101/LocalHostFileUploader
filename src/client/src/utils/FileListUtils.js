@@ -46,7 +46,7 @@ const useListService = () => {
     setPath(newPath);
   };
 
-  const onFilesSubmit = (event, uploadedFiles) => {
+  const onFilesSubmit = (event, uploadedFiles, setUploadFiles) => {
     event.preventDefault();
     let formData = new FormData();
     uploadedFiles.map((entry) => {
@@ -68,13 +68,14 @@ const useListService = () => {
         newFiles.sort((a, b) => a.name.localeCompare(b.name));
         setFiles([files[0], newFiles]);
       });
+    setUploadFiles([]);
   };
 
   const onCreateNewFolder = async (event, name) => {
     event.preventDefault();
     let formData = new FormData();
     formData.append("path", path.join("/"));
-    formData.append("directoryName", name);
+    formData.append("directoryName", name.current.value);
 
     axios
       .post("https://localhost:8443/api/create_directory", formData, {
@@ -86,6 +87,7 @@ const useListService = () => {
         newDirectories.sort((a, b) => a.name.localeCompare(b.name));
         setFiles([newDirectories, files[1]]);
       });
+    name.current.value = "";
   };
 
   return {

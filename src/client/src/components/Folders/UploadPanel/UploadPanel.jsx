@@ -13,7 +13,7 @@ const UploadPanel = (props) => {
     <div className="d-flex flex-column p-3">
       <form
         className="d-flex flex-column"
-        onSubmit={(event) => props.onSubmit(event, files)}
+        onSubmit={(event) => props.onSubmit(event, files, setFiles)}
         encType="multipart/form-data"
       >
         <label htmlFor="formFile" className="form-label fs-2 text-center">
