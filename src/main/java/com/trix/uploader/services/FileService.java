@@ -3,6 +3,7 @@ package com.trix.uploader.services;
 import com.trix.uploader.exceptions.EmptyFileException;
 import com.trix.uploader.exceptions.path.AbsolutePathException;
 import com.trix.uploader.model.FileModel;
+import com.trix.uploader.pojos.FileSaved;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -16,10 +17,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.mapping;
 
 @Service
 public class FileService {
@@ -36,16 +39,18 @@ public class FileService {
     }
 
 
-    public List<FileModel> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
+    public Map<String, List<FileModel>> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
 
         if (uploadRequestPath.isAbsolute())
             throw new AbsolutePathException();
 
-        return files.stream().map(file -> save(file, uploadRequestPath, override)).filter(Objects::nonNull).toList();
+        return files.stream()
+                .map(file -> save(file, uploadRequestPath, override))
+                .collect(Collectors.groupingBy(o -> o.getIsSaved() ? "saved" : "notSaved", mapping(FileSaved::getFileModel, Collectors.toList())));
     }
 
 
-    public FileModel save(MultipartFile file, Path uploadRequestPath, Boolean override) {
+    public FileSaved save(MultipartFile file, Path uploadRequestPath, Boolean override) {
 
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
@@ -61,14 +66,19 @@ public class FileService {
             try {
                 Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
                 File savedFile = new File(absolutePath.toUri());
-                return new FileModel(savedFile.getName(), absolutePath.toString());
+                FileModel fileModel = new FileModel(savedFile.getName(), absolutePath.toString());
+                FileSaved fileSaved = new FileSaved(fileModel, true);
+                return fileSaved;
             } catch (IOException e) {
                 //TODO add some handling here
                 e.printStackTrace();
             }
 
         }
-        return null;
+
+        FileModel fileModel = new FileModel(fileName, relativePath.toString());
+        FileSaved fileSaved = new FileSaved(fileModel);
+        return fileSaved;
     }
 
 

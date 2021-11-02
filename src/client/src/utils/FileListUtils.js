@@ -71,24 +71,26 @@ const useListService = () => {
             })
             .then((response) => {
                 let newFiles = [...files[1]];
+                let responseNotSaved = response.data.files.notSaved || [];
+                let responseSaved = response.data.files.saved || [];
 
-                let difference = uploadedFiles.filter(
-                    (entry) =>
-                        !response.data.files.some(
+                //Need to do this to have js File object instead of my model object
+                let notSaved = [];
+                if (responseNotSaved !== undefined) {
+                    notSaved = uploadedFiles.filter((entry) =>
+                        responseNotSaved.some(
                             (entry2) => entry2.name === entry.name
                         )
-                );
-
-                setUploadFiles(difference);
-                newFiles = newFiles.concat(difference);
+                    );
+                }
+                setUploadFiles(notSaved);
+                if (responseSaved !== undefined) {
+                    newFiles = newFiles.concat(responseSaved);
+                }
                 newFiles.sort((a, b) => a.name.localeCompare(b.name));
-                console.log("Uploaded", uploadedFiles);
-                console.log("Saved files:", response.data.files);
-                console.log("Difference", difference);
-                console.log("files", files[1]);
                 setFiles([files[0], newFiles]);
 
-                if (difference.length > 0)
+                if (responseNotSaved.length > 0)
                     toast.error(
                         "Not all files could be uploaded. Check if files with the same names already exists in folder you wish to upload"
                     );

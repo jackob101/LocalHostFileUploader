@@ -35,11 +35,10 @@ public class FilesController {
 
         Map<String, Object> response = new HashMap<>();
 
-        List<FileModel> savedFiles = fileService.saveAll(
+        Map<String, List<FileModel>> savedFiles = fileService.saveAll(
                 Arrays.asList(files),
                 Paths.get(path.orElse("")),
                 override
-
         );
 
         response.put("files", savedFiles);
