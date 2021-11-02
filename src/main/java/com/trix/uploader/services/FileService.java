@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
@@ -34,27 +35,39 @@ public class FileService {
         this.uploadDirectory = Paths.get("/", arrayPath);
     }
 
-    public FileModel save(MultipartFile file, String[] path) {
-        return save(file, Path.of("", path));
+
+    public List<FileModel> saveAll(List<MultipartFile> files, Path uploadRequestPath) {
+
+        if (uploadRequestPath.isAbsolute())
+            throw new AbsolutePathException();
+
+        return files.stream().map(file -> save(file, uploadRequestPath)).filter(Objects::nonNull).toList();
     }
 
-    public FileModel save(MultipartFile file, Path requestUploadPath) {
+
+    public FileModel save(MultipartFile file, Path uploadRequestPath) {
 
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
 
         String fileName = StringUtils.cleanPath(requireNonNull(file.getOriginalFilename()));
-        Path relativeUploadPath = uploadDirectory.resolve(requestUploadPath);
-        Path filePath = relativeUploadPath.resolve(fileName);
+        Path relativePath = uploadRequestPath.resolve(fileName);
+        Path absolutePath = uploadDirectory.resolve(relativePath);
 
-        try {
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            File savedFile = new File(filePath.toUri());
-            return new FileModel(savedFile.getName(), filePath.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+        File oldFile = new File(absolutePath.toUri());
+
+        if (!oldFile.exists()) {
+
+            try {
+                Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
+                File savedFile = new File(absolutePath.toUri());
+                return new FileModel(savedFile.getName(), absolutePath.toString());
+            } catch (IOException e) {
+                //TODO add some handling here
+                e.printStackTrace();
+            }
+
         }
-
         return null;
     }
 
@@ -76,11 +89,7 @@ public class FileService {
 
         for (File entry : requireNonNull(file.listFiles())) {
 
-            if (entry.isDirectory()) {
-                files.add(new FileModel(entry.getName(), path, true));
-            } else {
-                files.add(new FileModel(entry.getName(), path));
-            }
+            files.add(new FileModel(entry.getName(), path, entry.isDirectory()));
 
         }
 

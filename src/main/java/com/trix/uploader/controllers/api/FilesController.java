@@ -6,10 +6,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -31,18 +29,11 @@ public class FilesController {
 
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files, @RequestPart(required = false) String path) {
+    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files, @RequestPart Optional<String> path) {
 
-        List<FileModel> savedFiles = new ArrayList<>();
         Map<String, Object> response = new HashMap<>();
 
-        if (path == null) {
-            path = "";
-        }
-
-        for (MultipartFile file : files) {
-            savedFiles.add(fileService.save(file, path.split("/")));
-        }
+        List<FileModel> savedFiles = fileService.saveAll(Arrays.asList(files), Paths.get(path.orElse("")));
 
         response.put("files", savedFiles);
 

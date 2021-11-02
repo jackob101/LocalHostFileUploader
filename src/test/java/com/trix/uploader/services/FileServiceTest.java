@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -38,7 +39,7 @@ class FileServiceTest {
     public void save_exception() {
         MultipartFile multipartFile = new MockMultipartFile(fileName, new byte[]{});
 
-        assertThrows(EmptyFileException.class, () -> fileService.save(multipartFile, new String[]{""}));
+        assertThrows(EmptyFileException.class, () -> fileService.save(multipartFile, Paths.get("")));
     }
 
     @Test
@@ -49,7 +50,7 @@ class FileServiceTest {
         MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, null, inputStream);
 
         //when
-        fileService.save(multipartFile, new String[]{""});
+        fileService.save(multipartFile, Paths.get(""));
 
     }
 }
