@@ -36,16 +36,16 @@ public class FileService {
     }
 
 
-    public List<FileModel> saveAll(List<MultipartFile> files, Path uploadRequestPath) {
+    public List<FileModel> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
 
         if (uploadRequestPath.isAbsolute())
             throw new AbsolutePathException();
 
-        return files.stream().map(file -> save(file, uploadRequestPath)).filter(Objects::nonNull).toList();
+        return files.stream().map(file -> save(file, uploadRequestPath, override)).filter(Objects::nonNull).toList();
     }
 
 
-    public FileModel save(MultipartFile file, Path uploadRequestPath) {
+    public FileModel save(MultipartFile file, Path uploadRequestPath, Boolean override) {
 
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
@@ -56,7 +56,7 @@ public class FileService {
 
         File oldFile = new File(absolutePath.toUri());
 
-        if (!oldFile.exists()) {
+        if (!oldFile.exists() || override) {
 
             try {
                 Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);

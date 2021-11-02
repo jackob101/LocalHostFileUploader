@@ -29,11 +29,18 @@ public class FilesController {
 
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files, @RequestPart Optional<String> path) {
+    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files,
+                                           @RequestPart Optional<String> path,
+                                           @RequestParam(required = false, defaultValue = "false") Boolean override) {
 
         Map<String, Object> response = new HashMap<>();
 
-        List<FileModel> savedFiles = fileService.saveAll(Arrays.asList(files), Paths.get(path.orElse("")));
+        List<FileModel> savedFiles = fileService.saveAll(
+                Arrays.asList(files),
+                Paths.get(path.orElse("")),
+                override
+
+        );
 
         response.put("files", savedFiles);
 
