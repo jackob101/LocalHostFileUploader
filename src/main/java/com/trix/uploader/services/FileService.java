@@ -1,6 +1,7 @@
 package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
+import com.trix.uploader.exceptions.path.AbsolutePathException;
 import com.trix.uploader.model.FileModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -92,8 +93,7 @@ public class FileService {
         Path relativePath = Paths.get(normalizedPath);
 
         if (relativePath.isAbsolute())
-            //TODO Add exception handler
-            throw new RuntimeException("Requested path is absolute");
+            throw new AbsolutePathException();
 
         Path absolutePath = uploadDirectory.resolve(Paths.get(path).resolve(directoryName));
 
