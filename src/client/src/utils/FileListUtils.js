@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 const useListService = () => {
     const [files, setFiles] = useState([]);
     const [path, setPath] = useState([]);
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     const sortFileList = (fileList) => {
         let directories = [];
@@ -21,13 +22,15 @@ const useListService = () => {
     };
 
     useEffect(() => {
+        console.log("use effect");
         axios
-            .get("https://localhost:8443/api/getFiles", {
+            .get(backendUrl + "api/getFiles", {
                 params: {
                     path: path.join("/"),
                 },
             })
             .then((response) => {
+                console.log("axios");
                 sortFileList(response.data.files);
             });
     }, [path]);
@@ -73,7 +76,7 @@ const useListService = () => {
         console.log(JSON.stringify(overrideRef.current.checked));
 
         axios
-            .post("https://localhost:8443/api/upload", formData, {
+            .post(backendUrl + "api/upload", formData, {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "multipart/form-data",
@@ -109,9 +112,8 @@ const useListService = () => {
 
     const downloadImage = (fileName) => {
         let filePath = path.concat(fileName);
-
         axios({
-            url: "https://localhost:8443/api/download",
+            url: backendUrl + "api/download",
             responseType: "blob",
             params: {
                 path: filePath.join("/"),
@@ -133,8 +135,9 @@ const useListService = () => {
         formData.append("path", path.join("/"));
         formData.append("directoryName", name.current.value);
 
+        console.log(backendUrl);
         axios
-            .post("https://localhost:8443/api/create_directory", formData, {
+            .post(backendUrl + "api/create_directory", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             })
             .then((response) => {

@@ -27,12 +27,16 @@ const FileItem = ({ file, index, onEnterDirectory, downloadImage }) => {
                 <span>{date.toLocaleDateString("en-US", options)}</span>
             </div>
 
-            <button
-                className="btn btn-outline-primary mx-1"
-                onClick={() => downloadImage(file.name)}
-            >
-                Download
-            </button>
+            {!file.directory ? (
+                <button
+                    className="btn btn-outline-primary mx-1"
+                    onClick={() => downloadImage(file.name)}
+                >
+                    Download
+                </button>
+            ) : (
+                ""
+            )}
         </div>
     );
 };

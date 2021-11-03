@@ -13,7 +13,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter implement
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests().anyRequest().permitAll();
-        http.requiresChannel().anyRequest().requiresSecure();
+//        http.requiresChannel().anyRequest().requiresSecure();
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
