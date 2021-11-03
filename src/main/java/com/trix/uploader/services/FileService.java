@@ -3,7 +3,7 @@ package com.trix.uploader.services;
 import com.trix.uploader.exceptions.EmptyFileException;
 import com.trix.uploader.exceptions.path.AbsolutePathException;
 import com.trix.uploader.model.FileModel;
-import com.trix.uploader.pojos.FileSaved;
+import com.trix.uploader.pojos.SavingResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -11,10 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +46,11 @@ public class FileService {
 
         return files.stream()
                 .map(file -> save(file, uploadRequestPath, override))
-                .collect(Collectors.groupingBy(o -> o.getIsSaved() ? "saved" : "notSaved", mapping(FileSaved::getFileModel, Collectors.toList())));
+                .collect(Collectors.groupingBy(o -> o.getIsSaved() ? "saved" : "notSaved", mapping(SavingResult::getFileModel, Collectors.toList())));
     }
 
 
-    public FileSaved save(MultipartFile file, Path uploadRequestPath, Boolean override) {
+    public SavingResult save(MultipartFile file, Path uploadRequestPath, Boolean override) {
 
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
@@ -66,9 +66,16 @@ public class FileService {
             try {
                 Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
                 File savedFile = new File(absolutePath.toUri());
-                FileModel fileModel = new FileModel(savedFile.getName(), absolutePath.toString());
-                FileSaved fileSaved = new FileSaved(fileModel, true);
-                return fileSaved;
+                FileTime modifiedFileTime = Files.getLastModifiedTime(savedFile.toPath(), LinkOption.NOFOLLOW_LINKS);
+                LocalDateTime modifiedDate = LocalDateTime.ofInstant(modifiedFileTime.toInstant(), ZoneId.systemDefault());
+
+                FileModel fileModel = FileModel.builder()
+                        .name(savedFile.getName())
+                        .path(absolutePath.toString())
+                        .modifiedDate(modifiedDate)
+                        .build();
+
+                return new SavingResult(fileModel, true);
             } catch (IOException e) {
                 //TODO add some handling here
                 e.printStackTrace();
@@ -77,8 +84,7 @@ public class FileService {
         }
 
         FileModel fileModel = new FileModel(fileName, relativePath.toString());
-        FileSaved fileSaved = new FileSaved(fileModel);
-        return fileSaved;
+        return new SavingResult(fileModel);
     }
 
 
@@ -99,8 +105,15 @@ public class FileService {
 
         for (File entry : requireNonNull(file.listFiles())) {
 
-            files.add(new FileModel(entry.getName(), path, entry.isDirectory()));
-
+            FileTime fileTime = null;
+            try {
+                fileTime = Files.getLastModifiedTime(entry.toPath(), LinkOption.NOFOLLOW_LINKS);
+                LocalDateTime lastModified = LocalDateTime.ofInstant(fileTime.toInstant(), ZoneId.systemDefault());
+                files.add(new FileModel(entry.getName(), path, entry.isDirectory(), lastModified));
+            } catch (IOException e) {
+                //TODO add handling for this
+                e.printStackTrace();
+            }
         }
 
         return files;

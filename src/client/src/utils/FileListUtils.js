@@ -80,6 +80,7 @@ const useListService = () => {
                 },
             })
             .then((response) => {
+                console.log(response);
                 let newFiles = [...files[1]];
                 let responseNotSaved = response.data.files.notSaved || [];
                 let responseSaved = response.data.files.saved || [];
