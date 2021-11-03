@@ -47,6 +47,16 @@ const useListService = () => {
         setPath(newPath);
     };
 
+    const concatWithoutDuplicates = (array1, array2) => {
+        let newArray = array1.concat(
+            array2.filter(
+                (entry1) =>
+                    !array1.some((entry2) => entry1.name === entry2.name)
+            )
+        );
+        return newArray;
+    };
+
     const onFilesSubmit = (
         event,
         uploadedFiles,
@@ -76,17 +86,16 @@ const useListService = () => {
 
                 //Need to do this to have js File object instead of my model object
                 let notSaved = [];
-                if (responseNotSaved !== undefined) {
-                    notSaved = uploadedFiles.filter((entry) =>
-                        responseNotSaved.some(
-                            (entry2) => entry2.name === entry.name
-                        )
-                    );
-                }
+                notSaved = uploadedFiles.filter((entry) =>
+                    responseNotSaved.some(
+                        (entry2) => entry2.name === entry.name
+                    )
+                );
+
                 setUploadFiles(notSaved);
-                if (responseSaved !== undefined) {
-                    newFiles = newFiles.concat(responseSaved);
-                }
+
+                newFiles = concatWithoutDuplicates(newFiles, responseSaved);
+
                 newFiles.sort((a, b) => a.name.localeCompare(b.name));
                 setFiles([files[0], newFiles]);
 
