@@ -107,6 +107,26 @@ const useListService = () => {
             });
     };
 
+    const downloadImage = (fileName) => {
+        let filePath = path.concat(fileName);
+
+        axios({
+            url: "https://localhost:8443/api/download",
+            responseType: "blob",
+            params: {
+                path: filePath.join("/"),
+            },
+        }).then((response) => {
+            let suggestedFilename = response.headers["x-suggested-filename"];
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", suggestedFilename);
+            document.body.appendChild(link);
+            link.click();
+        });
+    };
+
     const onCreateNewFolder = async (event, name) => {
         event.preventDefault();
         let formData = new FormData();
@@ -145,6 +165,7 @@ const useListService = () => {
         onGoToParentDir,
         onFilesSubmit,
         changeCurrentPath,
+        downloadImage,
     };
 };
 

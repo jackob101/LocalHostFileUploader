@@ -1,6 +1,6 @@
 import React from "react";
 
-const FileItem = ({ file, index, onEnterDirectory }) => {
+const FileItem = ({ file, index, onEnterDirectory, downloadImage }) => {
     let options = {
         day: "numeric",
         month: "2-digit",
@@ -11,7 +11,7 @@ const FileItem = ({ file, index, onEnterDirectory }) => {
     let date = new Date(file.modifiedDate + "Z");
 
     return (
-        <div className="d-flex flex-row my-2">
+        <div className="d-flex flex-row my-2 align-items-center">
             <div className="me-3 fw-bold">{index + 1}</div>
             {file.directory && (
                 <button
@@ -25,8 +25,14 @@ const FileItem = ({ file, index, onEnterDirectory }) => {
 
             <div className="ms-auto">
                 <span>{date.toLocaleDateString("en-US", options)}</span>
-                {/* <span>{file.modifiedDate}</span> */}
             </div>
+
+            <button
+                className="btn btn-outline-primary mx-1"
+                onClick={() => downloadImage(file.name)}
+            >
+                Download
+            </button>
         </div>
     );
 };

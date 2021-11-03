@@ -157,4 +157,13 @@ public class FileService {
         return fileModel;
 
     }
+
+    public File getFile(String path) {
+
+        String normalized = StringUtils.cleanPath(path);
+        Path absolutePath = uploadDirectory.resolve(path);
+
+
+        return new File(absolutePath.toUri());
+    }
 }
