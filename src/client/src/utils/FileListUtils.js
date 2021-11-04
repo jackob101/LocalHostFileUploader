@@ -22,7 +22,6 @@ const useListService = () => {
     };
 
     useEffect(() => {
-        console.log("use effect");
         axios
             .get(backendUrl + "api/getFiles", {
                 params: {
@@ -30,10 +29,9 @@ const useListService = () => {
                 },
             })
             .then((response) => {
-                console.log("axios");
                 sortFileList(response.data.files);
             });
-    }, [path]);
+    }, [path, backendUrl]);
 
     const changeCurrentPath = (pathIndex) => {
         setPath(path.splice(-1, pathIndex));
@@ -68,12 +66,11 @@ const useListService = () => {
     ) => {
         event.preventDefault();
         let formData = new FormData();
-        uploadedFiles.map((entry) => {
+        uploadedFiles.forEach((entry) => {
             formData.append("files", entry);
         });
         formData.append("path", path.join("/"));
         formData.append("override", overrideRef.current.checked);
-        console.log(JSON.stringify(overrideRef.current.checked));
 
         axios
             .post(backendUrl + "api/upload", formData, {
@@ -83,7 +80,6 @@ const useListService = () => {
                 },
             })
             .then((response) => {
-                console.log(response);
                 let newFiles = [...files[1]];
                 let responseNotSaved = response.data.files.notSaved || [];
                 let responseSaved = response.data.files.saved || [];
@@ -135,7 +131,6 @@ const useListService = () => {
         formData.append("path", path.join("/"));
         formData.append("directoryName", name.current.value);
 
-        console.log(backendUrl);
         axios
             .post(backendUrl + "api/create_directory", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -146,7 +141,6 @@ const useListService = () => {
                         (entry) => entry.name === response.data.directory.name
                     )
                 ) {
-                    console.log("Creating new directory");
                     let newDirectories = [...files[0]];
                     newDirectories.push(response.data.directory);
                     newDirectories.sort((a, b) => a.name.localeCompare(b.name));
@@ -159,6 +153,31 @@ const useListService = () => {
         name.current.value = "";
     };
 
+    const submitEdit = (path, oldName, newName) => {
+        console.log(path, oldName, newName);
+        let formData = new FormData();
+        formData.append("path", path);
+        formData.append("oldName", oldName);
+        formData.append("newName", newName);
+        axios.post(backendUrl + "api/update", formData).then((response) => {
+            //TODO this is temporary
+            if (response.data.directory) {
+                let newFiles = updateData(files[0], response.data, oldName);
+                setFiles([newFiles, files[1]]);
+            } else {
+                let newFiles = updateData(files[1], response.data, oldName);
+                setFiles([files[0], newFiles]);
+            }
+        });
+    };
+
+    const updateData = (files, data, oldName) => {
+        files = files.filter((entry) => entry.name !== oldName);
+        files.push(data);
+        files.sort((a, b) => a.name.localeCompare(b.name));
+        return files;
+    };
+
     return {
         files,
         path,
@@ -169,6 +188,7 @@ const useListService = () => {
         onFilesSubmit,
         changeCurrentPath,
         downloadImage,
+        submitEdit,
     };
 };
 

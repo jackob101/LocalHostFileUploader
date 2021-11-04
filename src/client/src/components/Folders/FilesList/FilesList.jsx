@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import FileItem from "../FileItem/FileItem";
 
 const FilesList = (props) => {
     let index = 0;
+
+    const [editing, setEditing] = useState(-1);
+
+    const toggleEdit = (index) => {
+        setEditing(editing === index ? -1 : index);
+    };
+
     return (
         <div className="flex-grow-1 my-2 p-3">
             <div
@@ -18,6 +25,9 @@ const FilesList = (props) => {
                                 index={index}
                                 downloadImage={props.downloadImage}
                                 onEnterDirectory={props.onEnterDirectory}
+                                submitEdit={props.submitEdit}
+                                isEditing={editing === index}
+                                toggleEdit={toggleEdit}
                             />
                         );
                         index++;

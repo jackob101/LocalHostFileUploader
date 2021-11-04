@@ -2,9 +2,12 @@ package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
 import com.trix.uploader.exceptions.path.AbsolutePathException;
+import com.trix.uploader.exceptions.renaming.RenamingException;
 import com.trix.uploader.model.FileModel;
 import com.trix.uploader.pojos.SavingResult;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +27,7 @@ import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.mapping;
 
+@Cacheable("files")
 @Service
 public class FileService {
 
@@ -39,6 +43,7 @@ public class FileService {
     }
 
 
+    @CacheEvict(cacheNames = "files", key = "#uploadRequestPath.toString()")
     public Map<String, List<FileModel>> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
 
         if (uploadRequestPath.isAbsolute())
@@ -50,7 +55,7 @@ public class FileService {
     }
 
 
-    public SavingResult save(MultipartFile file, Path uploadRequestPath, Boolean override) {
+    private SavingResult save(MultipartFile file, Path uploadRequestPath, Boolean override) {
 
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
@@ -87,7 +92,7 @@ public class FileService {
         return new SavingResult(fileModel);
     }
 
-
+    @Cacheable(cacheNames = "files", key = "#path")
     public List<FileModel> getFilesUnderPath(String path) {
 
         ArrayList<FileModel> files = new ArrayList<>();
@@ -119,6 +124,7 @@ public class FileService {
         return files;
     }
 
+    @CacheEvict(cacheNames = "files", key = "#path")
     public FileModel createDirectory(String path, String directoryName) {
 
         String normalizedPath = StringUtils.cleanPath(path);
@@ -165,5 +171,23 @@ public class FileService {
 
 
         return new File(absolutePath.toUri());
+    }
+
+    @CacheEvict(cacheNames = "files", key = "#path")
+    public FileModel updateName(String path, String oldName, String newName) {
+
+        String normalizedPath = StringUtils.cleanPath(path);
+        Path absolutePath = uploadDirectory.resolve(Paths.get(path, oldName));
+        Path newAbsolutePath = uploadDirectory.resolve(Paths.get(normalizedPath, newName));
+
+        File file = getFile(absolutePath.toString());
+        boolean isRenamed = file.renameTo(new File(newAbsolutePath.toUri()));
+
+        if (!isRenamed)
+            throw new RenamingException("File could not be renamed");
+
+        File renamedFile = new File(newAbsolutePath.toUri());
+        return new FileModel(renamedFile.getName(), path, renamedFile.isDirectory());
+
     }
 }

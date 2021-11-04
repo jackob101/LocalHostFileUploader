@@ -83,4 +83,13 @@ public class FilesController {
                 .header("x-suggested-filename", file.getName())
                 .body(byteArrayFile);
     }
+
+    @PostMapping(value = "update")
+    public FileModel updateFileName(@RequestParam(value = "path", defaultValue = "") String path,
+                                    @RequestParam("oldName") String oldName,
+                                    @RequestParam("newName") String newName) {
+
+        return fileService.updateName(path, oldName, newName);
+
+    }
 }

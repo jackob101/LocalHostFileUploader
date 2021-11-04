@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -33,5 +34,18 @@ public final class FileModel {
         this.path = path;
         this.isDirectory = isDirectory;
         this.modifiedDate = modifiedDate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FileModel fileModel = (FileModel) o;
+        return isDirectory == fileModel.isDirectory && name.equals(fileModel.name) && path.equals(fileModel.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, path, isDirectory);
     }
 }

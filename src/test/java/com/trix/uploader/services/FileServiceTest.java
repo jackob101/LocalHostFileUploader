@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,7 +40,7 @@ class FileServiceTest {
     public void save_exception() {
         MultipartFile multipartFile = new MockMultipartFile(fileName, new byte[]{});
 
-        assertThrows(EmptyFileException.class, () -> fileService.save(multipartFile, Paths.get(""), false));
+        assertThrows(EmptyFileException.class, () -> fileService.saveAll(List.of(multipartFile), Paths.get(""), false));
     }
 
     @Test
@@ -50,7 +51,7 @@ class FileServiceTest {
         MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, null, inputStream);
 
         //when
-        fileService.save(multipartFile, Paths.get(""), false);
+        fileService.saveAll(List.of(multipartFile), Paths.get(""), false);
 
     }
 

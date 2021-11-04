@@ -16,6 +16,7 @@ const MainPage = () => {
         onEnterDirectory,
         onCreateNewFolder,
         downloadImage,
+        submitEdit,
     } = useListService();
 
     return (
@@ -45,6 +46,7 @@ const MainPage = () => {
                                 changeCurrentPath={changeCurrentPath}
                                 onGoToParentDir={onGoToParentDir}
                                 onEnterDirectory={onEnterDirectory}
+                                submitEdit={submitEdit}
                             />
                         </div>
                         <div
