@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -59,9 +58,9 @@ class FileServiceTest {
     @Test
     public void pathTesting() throws IOException {
         String uploadPathString = "/home/jackob/uploader/upload";
-        Path path = Paths.get(uploadPathString);
+        String relative = "uploader/upload";
 
-        System.out.println(path.toString());
+
     }
 
 

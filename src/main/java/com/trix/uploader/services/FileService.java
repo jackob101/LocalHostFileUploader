@@ -1,6 +1,7 @@
 package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
+import com.trix.uploader.exceptions.directory.NotADirectoryException;
 import com.trix.uploader.exceptions.path.AbsolutePathException;
 import com.trix.uploader.exceptions.renaming.RenamingException;
 import com.trix.uploader.model.FileModel;
@@ -13,9 +14,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.*;
-import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -23,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.stream;
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.mapping;
 
 @Cacheable("files")
@@ -37,16 +38,23 @@ public class FileService {
         this.uploadDirectory = Paths.get(filesPath);
     }
 
+    private Path generateAbsoluteUploadPath(Path relativeUploadPath, String fileName) {
+
+        if (relativeUploadPath.isAbsolute())
+            throw new AbsolutePathException();
+
+        Path cleanedFileName = Paths.get(fileName).getFileName();
+        return uploadDirectory.resolve(relativeUploadPath.resolve(cleanedFileName));
+    }
 
     @CacheEvict(cacheNames = "files", key = "#uploadRequestPath.toString()")
     public Map<String, List<FileModel>> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
 
-        if (uploadRequestPath.isAbsolute())
-            throw new AbsolutePathException();
-
         return files.stream()
                 .map(file -> save(file, uploadRequestPath, override))
-                .collect(Collectors.groupingBy(o -> o.getIsSaved() ? "saved" : "notSaved", mapping(SavingResult::getFileModel, Collectors.toList())));
+                .collect(Collectors.groupingBy(
+                        entry -> entry.getIsSaved() ? "saved" : "notSaved",
+                        mapping(SavingResult::getFileModel, Collectors.toList())));
     }
 
 
@@ -55,25 +63,26 @@ public class FileService {
         if (file == null || file.isEmpty())
             throw new EmptyFileException();
 
-        String fileName = StringUtils.cleanPath(requireNonNull(file.getOriginalFilename()));
-        Path relativePath = uploadRequestPath.resolve(fileName);
-        Path absolutePath = uploadDirectory.resolve(relativePath);
+        Path absolutePath = generateAbsoluteUploadPath(uploadRequestPath, file.getOriginalFilename());
+        URI absolutePathUri = absolutePath.toUri();
 
-        File oldFile = new File(absolutePath.toUri());
+        boolean exists = Files.exists(absolutePath, LinkOption.NOFOLLOW_LINKS);
 
-        if (!oldFile.exists() || override) {
+        if (!exists || override) {
 
             try {
-                Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
-                File savedFile = new File(absolutePath.toUri());
-                FileTime modifiedFileTime = Files.getLastModifiedTime(savedFile.toPath(), LinkOption.NOFOLLOW_LINKS);
-                LocalDateTime modifiedDate = LocalDateTime.ofInstant(modifiedFileTime.toInstant(), ZoneId.systemDefault());
 
-                FileModel fileModel = FileModel.builder()
-                        .name(savedFile.getName())
-                        .path(absolutePath.toString())
-                        .modifiedDate(modifiedDate)
-                        .build();
+                Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
+                File savedFile = new File(absolutePathUri);
+
+                Instant modifiedInstant = Files.getLastModifiedTime(savedFile.toPath(), LinkOption.NOFOLLOW_LINKS).toInstant();
+                LocalDateTime modifiedDate = LocalDateTime.ofInstant(modifiedInstant, ZoneId.systemDefault());
+
+                FileModel fileModel = new FileModel(
+                        savedFile.getName(),
+                        uploadDirectory.resolve(absolutePath).toString(),
+                        savedFile.isDirectory(),
+                        modifiedDate);
 
                 return new SavingResult(fileModel, true);
             } catch (IOException e) {
@@ -83,37 +92,40 @@ public class FileService {
 
         }
 
-        FileModel fileModel = new FileModel(fileName, relativePath.toString());
+        FileModel fileModel = new FileModel(file.getName(), uploadRequestPath.toString());
         return new SavingResult(fileModel);
     }
 
     @Cacheable(cacheNames = "files", key = "#path")
-    public List<FileModel> getFilesUnderPath(String path) {
+    public List<FileModel> getFilesUnderPath(String path) throws FileNotFoundException {
 
         ArrayList<FileModel> files = new ArrayList<>();
-        String[] arrayPath;
+        Path relativePath = Paths.get(path);
 
-        if (path.isEmpty()) {
-            arrayPath = new String[0];
-        } else {
-            arrayPath = stream(path.split("/"))
-                    .filter(entry -> !entry.isEmpty())
-                    .toArray(String[]::new);
-        }
+        if (relativePath.isAbsolute())
+            throw new AbsolutePathException();
 
-        File file = new File(uploadDirectory.resolve(Paths.get("", arrayPath)).toUri());
+        Path absolutePath = uploadDirectory.resolve(path);
+        File file = new File(absolutePath.toUri());
 
-        for (File entry : requireNonNull(file.listFiles())) {
+        if (!file.exists())
+            throw new FileNotFoundException();
 
-            FileTime fileTime = null;
+        if (!file.isDirectory())
+            throw new NotADirectoryException();
+
+        for (File entry : file.listFiles()) {
+
+            Instant fileTime = null;
+
             try {
-                fileTime = Files.getLastModifiedTime(entry.toPath(), LinkOption.NOFOLLOW_LINKS);
-                LocalDateTime lastModified = LocalDateTime.ofInstant(fileTime.toInstant(), ZoneId.systemDefault());
-                files.add(new FileModel(entry.getName(), path, entry.isDirectory(), lastModified));
+                fileTime = Files.getLastModifiedTime(entry.toPath(), LinkOption.NOFOLLOW_LINKS).toInstant();
             } catch (IOException e) {
-                //TODO add handling for this
-                e.printStackTrace();
+                fileTime = Instant.EPOCH;
             }
+
+            LocalDateTime lastModified = LocalDateTime.ofInstant(fileTime, ZoneId.systemDefault());
+            files.add(new FileModel(entry.getName(), path, entry.isDirectory(), lastModified));
         }
 
         return files;
@@ -122,37 +134,30 @@ public class FileService {
     @CacheEvict(cacheNames = "files", key = "#path")
     public FileModel createDirectory(String path, String directoryName) {
 
-        String normalizedPath = StringUtils.cleanPath(path);
-        Path relativePath = Paths.get(normalizedPath);
+        Path relativePath = Paths.get(path);
 
         if (relativePath.isAbsolute())
             throw new AbsolutePathException();
 
-        Path absolutePath = uploadDirectory.resolve(Paths.get(path).resolve(directoryName));
+        Path absolutePath = generateAbsoluteUploadPath(relativePath, directoryName);
 
         File file = new File(absolutePath.toUri());
         FileModel fileModel = null;
 
         if (file.exists() && file.isDirectory()) {
+
             fileModel = new FileModel(file.getName(), path, true);
+
         } else {
 
+            Path pathToDirectory;
+
             try {
-
-                Path directories = Files.createDirectory(absolutePath);
-                File createdDirectory = new File(directories.toUri());
-
-                Path newDirRelativePath = uploadDirectory.relativize(directories);
-                String pathString = "";
-
-                if (newDirRelativePath.getNameCount() >= 2)
-                    pathString = newDirRelativePath.subpath(0, newDirRelativePath.getNameCount() - 1).toString();
-
-                fileModel = new FileModel(directoryName, pathString, true);
+                pathToDirectory = Files.createDirectory(absolutePath);
             } catch (IOException e) {
-                //TODO Do some handling on this exception
-                e.printStackTrace();
+                pathToDirectory = absolutePath;
             }
+            fileModel = new FileModel(directoryName, relativePath.toString(), true);
         }
 
         return fileModel;

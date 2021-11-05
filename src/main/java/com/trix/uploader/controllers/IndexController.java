@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
 @Controller
@@ -18,7 +19,7 @@ public class IndexController {
     }
 
     @GetMapping("/")
-    public String getIndex(@RequestParam("path") Optional<String> optionalPath, Model model) {
+    public String getIndex(@RequestParam("path") Optional<String> optionalPath, Model model) throws FileNotFoundException {
         String path = optionalPath.orElse("");
         model.addAttribute("files", fileService.getFilesUnderPath(path));
         model.addAttribute("currentPath", path.split("/"));
