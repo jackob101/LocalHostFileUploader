@@ -34,12 +34,7 @@ public class FileService {
     private final Path uploadDirectory;
 
     public FileService(@Value("${upload.location}") String filesPath) {
-        String[] arrayPath = stream(filesPath.split("/"))
-                .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
-
-        //TODO add dynamic way to get root path
-        this.uploadDirectory = Paths.get("/", arrayPath);
+        this.uploadDirectory = Paths.get(filesPath);
     }
 
 
@@ -167,7 +162,7 @@ public class FileService {
     public File getFile(String path) {
 
         String normalized = StringUtils.cleanPath(path);
-        Path absolutePath = uploadDirectory.resolve(path);
+        Path absolutePath = uploadDirectory.resolve(normalized);
 
 
         return new File(absolutePath.toUri());

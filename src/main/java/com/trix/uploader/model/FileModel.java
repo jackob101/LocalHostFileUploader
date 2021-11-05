@@ -15,6 +15,7 @@ public final class FileModel {
     private final boolean isDirectory;
     private final LocalDateTime modifiedDate;
 
+
     public FileModel(String fileName, String path) {
         this.name = fileName;
         this.path = path;
@@ -35,6 +36,7 @@ public final class FileModel {
         this.isDirectory = isDirectory;
         this.modifiedDate = modifiedDate;
     }
+
 
     @Override
     public boolean equals(Object o) {
