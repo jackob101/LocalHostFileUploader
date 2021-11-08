@@ -10,14 +10,44 @@ is to just work on projects.
 - Download files from local server
 - Rename files
 - Create new directories
+- Delete directories
 
-## What I'm planning to add
+## Roadmap
 
 - [ ] Add preview of files
 - [ ] Add functionality to change permissions
-- [ ] Set up https (Currently there is https implemented ,but I turned it off because it was self-signed and caused
+- [ ] Set up https (Currently there is https implemented, but I turned it off because it was self-signed and caused
   trouble )
 - [ ] Add some sort of simple text editor to quickly create basic notes and upload it to server(in my case my pc)
+- [ ] Add option to edit text files
 - [ ] Maybe rework UI. I'm not sure yet
+
+## How to use
+
+1. Download jar from **releases**
+2. Create new folder for example **/home/{user}/uploader**
+3. Put jar inside created folder
+4. Run this command
+    ````
+    java -jar {downloaded jar} config 
+    ````
+5. This will start config setup that is required for this application to work
+6. If you chose default upload location in this example it will be located **/home/{user}/uploader/upload**
+7. Now you can start the application with
+    ```
+    java -jar {downloaded jar}
+    ```
+8. Now you have 2 options
+  1. If you want to access it from computer that is hosting the application you can simply open browser and go to **
+     localhost:8080**
+  2. In case you want to access application from mobile you will need to get the server ip. For example on arch linux
+     use this command and copy second ip
+     ```
+     ip address | grep -w inet
+     ```
+     and paste it into browser with port 8080 for example
+     ```
+     192.168.50.42:8080
+     ```
 
 Icons created by https://fontawesome.com

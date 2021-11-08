@@ -27,7 +27,7 @@ public class ConfigSetup {
         Map<String, Object> options = new HashMap<>();
 
         String userLocation =
-                (String) nextQuestion("Where do you want config to be stored",
+                (String) nextQuestion("Where do you want uploaded files to be stored",
                         "Default location : (" + jarLocation + "/upload)",
                         "Press \"Enter\" to accept default or input new path \n");
 
