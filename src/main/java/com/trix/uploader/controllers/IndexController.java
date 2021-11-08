@@ -1,7 +1,6 @@
 package com.trix.uploader.controllers;
 
 import com.trix.uploader.services.FileService;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.FileNotFoundException;
 import java.util.Optional;
 
-@Controller
+//@Controller
 public class IndexController {
 
     private final FileService fileService;

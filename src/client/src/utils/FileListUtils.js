@@ -23,13 +23,14 @@ const useListService = () => {
 
     useEffect(() => {
         axios
-            .get(backendUrl + "api/getFiles", {
+            .get("/api/getFiles", {
                 params: {
                     path: path.join("/"),
                 },
             })
             .then((response) => {
                 sortFileList(response.data.files);
+                console.log(response);
             });
     }, [path, backendUrl]);
 
@@ -73,7 +74,7 @@ const useListService = () => {
         formData.append("override", overrideRef.current.checked);
 
         axios
-            .post(backendUrl + "api/upload", formData, {
+            .post("/api/upload", formData, {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "multipart/form-data",
@@ -112,7 +113,7 @@ const useListService = () => {
     const downloadImage = (fileName) => {
         let filePath = path.concat(fileName);
         axios({
-            url: backendUrl + "api/download",
+            url: "/api/download",
             responseType: "blob",
             params: {
                 path: filePath.join("/"),
@@ -135,7 +136,7 @@ const useListService = () => {
         formData.append("directoryName", name.current.value);
 
         axios
-            .post(backendUrl + "api/create_directory", formData, {
+            .post("/api/create_directory", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             })
             .then((response) => {
@@ -157,12 +158,11 @@ const useListService = () => {
     };
 
     const submitEdit = (path, oldName, newName) => {
-        console.log(path, oldName, newName);
         let formData = new FormData();
         formData.append("path", path);
         formData.append("oldName", oldName);
         formData.append("newName", newName);
-        axios.post(backendUrl + "api/update", formData).then((response) => {
+        axios.post("/api/update", formData).then((response) => {
             //TODO this is temporary
             if (response.data.directory) {
                 let newFiles = updateData(files[0], response.data, oldName);
@@ -174,12 +174,12 @@ const useListService = () => {
         });
     };
 
-    const deleteFile = (path, name, isDirectory) => {
+    const deleteFile = (filePath, name, isDirectory) => {
         let formData = new FormData();
-        formData.append("path", path);
+        formData.append("path", filePath);
         formData.append("name", name);
 
-        axios.post(backendUrl + "api/delete", formData).then((response) => {
+        axios.post("/api/delete", formData).then((response) => {
             if (response.data.deleted) {
                 let newFiles;
                 if (isDirectory) {
