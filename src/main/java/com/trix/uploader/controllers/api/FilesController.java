@@ -5,6 +5,7 @@ import com.trix.uploader.services.FileService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -92,5 +93,14 @@ public class FilesController {
 
         return fileService.updateName(path, oldName, newName);
 
+    }
+
+    @PostMapping(value = "delete")
+    public ResponseEntity<Object> delete(@RequestParam(value = "path", defaultValue = "") String path, @RequestParam("name") String name) {
+
+        HashMap<String, Object> responseBody = new HashMap<>();
+        responseBody.put("deleted", fileService.delete(path, name));
+
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }

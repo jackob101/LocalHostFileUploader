@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -188,6 +189,22 @@ public class FileService {
 
         File renamedFile = new File(newAbsolutePath.toUri());
         return new FileModel(renamedFile.getName(), path, renamedFile.isDirectory());
+
+    }
+
+    @CacheEvict(cacheNames = "files", key = "#path")
+    public boolean delete(String path, String fileName) {
+
+        Path absolutePath = generateAbsoluteUploadPath(Paths.get(path), fileName);
+
+        File file = new File(absolutePath.toUri());
+
+        if (file.isDirectory()) {
+            Arrays.stream(file.listFiles())
+                    .forEach(entry -> delete(uploadDirectory.relativize(file.toPath()).toString(), entry.getName()));
+        }
+
+        return file.delete();
 
     }
 }

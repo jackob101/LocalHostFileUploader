@@ -103,6 +103,9 @@ const useListService = () => {
                     toast.error(
                         "Not all files could be uploaded. Check if files with the same names already exists in folder you wish to upload"
                     );
+            })
+            .catch((error) => {
+                toast.error(error.response.data);
             });
     };
 
@@ -171,6 +174,30 @@ const useListService = () => {
         });
     };
 
+    const deleteFile = (path, name, isDirectory) => {
+        let formData = new FormData();
+        formData.append("path", path);
+        formData.append("name", name);
+
+        axios.post(backendUrl + "api/delete", formData).then((response) => {
+            if (response.data.deleted) {
+                let newFiles;
+                if (isDirectory) {
+                    newFiles = [...files[0]];
+                } else {
+                    newFiles = [...files[1]];
+                }
+                newFiles = newFiles.filter((entry) => entry.name !== name);
+
+                isDirectory
+                    ? setFiles([newFiles, files[1]])
+                    : setFiles([files[0], newFiles]);
+
+                toast.success("Successfully deleted");
+            } else toast.error("Error occured while deleting file/directory");
+        });
+    };
+
     const updateData = (files, data, oldName) => {
         files = files.filter((entry) => entry.name !== oldName);
         files.push(data);
@@ -189,6 +216,7 @@ const useListService = () => {
         changeCurrentPath,
         downloadImage,
         submitEdit,
+        deleteFile,
     };
 };
 

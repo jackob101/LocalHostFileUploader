@@ -8,6 +8,7 @@ const FileItem = ({
     submitEdit,
     toggleEdit,
     isEditing,
+    deleteFile,
 }) => {
     let options = {
         day: "numeric",
@@ -74,6 +75,13 @@ const FileItem = ({
 
             <button className="btn btn-link" onClick={() => toggleEdit(index)}>
                 <img src="/edit-solid.svg" alt="Edit" width="16px" />
+            </button>
+
+            <button
+                className="btn btn-link"
+                onClick={() => deleteFile(file.path, file.name, file.directory)}
+            >
+                <img src="/trash-solid.svg" alt="Delete" width="16px" />
             </button>
         </div>
     );

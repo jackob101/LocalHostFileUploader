@@ -28,6 +28,7 @@ const FilesList = (props) => {
                                 submitEdit={props.submitEdit}
                                 isEditing={editing === index}
                                 toggleEdit={toggleEdit}
+                                deleteFile={props.deleteFile}
                             />
                         );
                         index++;
