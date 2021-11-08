@@ -22,7 +22,7 @@ const MainPage = () => {
     return (
         <div className="container h-100">
             <div className="row h-100">
-                <div className="col-md-4 col-8">
+                <div className="col-lg-4 col-8 mx-auto">
                     <UploadPanel onSubmit={onFilesSubmit} />
                 </div>
                 <div className="col d-flex flex-column border-start border-5  border-end">

@@ -5,17 +5,16 @@ import MainPage from "./pages/MainPage/MainPage";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-  return (
-    <div className="App" style={{ maxHeight: "100vh" }}>
-      <Navbar />
-      <Switch>
-        <Route path="/" exact>
-          <MainPage />
-        </Route>
-      </Switch>
-      <Toaster />
-    </div>
-  );
+    return (
+        <div className="App" style={{ maxHeight: "100vh" }}>
+            <Switch>
+                <Route path="/" exact>
+                    <MainPage />
+                </Route>
+            </Switch>
+            <Toaster />
+        </div>
+    );
 }
 
 export default App;

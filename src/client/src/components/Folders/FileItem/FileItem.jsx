@@ -18,6 +18,9 @@ const FileItem = ({
     };
     let date = new Date(file.modifiedDate + "Z");
 
+    const modified =
+        "Last modified on: " + date.toLocaleDateString("en-US", options);
+
     const [newName, setNewName] = useState(file.name);
 
     const onChange = (e) => {
@@ -44,34 +47,34 @@ const FileItem = ({
                 <button
                     className="btn-link btn m-0 p-0"
                     onClick={() => onEnterDirectory(file.name)}
+                    title={modified}
                 >
                     {file.name}
                 </button>
             ) : (
-                <span>{file.name}</span>
+                <span title={modified}>{file.name}</span>
             )}
 
-            <button
-                className="btn btn-outline-primary"
-                onClick={() => toggleEdit(index)}
-            >
-                Edit
-            </button>
-
-            <div className="ms-auto">
-                <span>{date.toLocaleDateString("en-US", options)}</span>
-            </div>
+            <div className="flex-grow-1"></div>
 
             {!file.directory ? (
                 <button
-                    className="btn btn-outline-primary mx-1"
+                    className="btn btn-link mx-1"
                     onClick={() => downloadImage(file.name)}
                 >
-                    Download
+                    <img
+                        src="/download-solid.svg"
+                        alt="Download"
+                        width="16px"
+                    />
                 </button>
             ) : (
                 ""
             )}
+
+            <button className="btn btn-link" onClick={() => toggleEdit(index)}>
+                <img src="/edit-solid.svg" alt="Edit" width="16px" />
+            </button>
         </div>
     );
 };
