@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+        aria-hidden="true"
+        focusable="false"
+        data-prefix="fas"
+        data-icon="location-arrow"
+        class="svg-inline--fa fa-location-arrow fa-w-16"
+        role="img"
+        viewBox="0 0 512 512"
+        version="1.1"
+        id="svg79"
+        sodipodi:docname="logo.svg"
+        inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns="http://www.w3.org/2000/svg"
+>
+    <defs
+            id="defs83"/>
+    <sodipodi:namedview
+            id="namedview81"
+            pagecolor="#505050"
+            bordercolor="#ffffff"
+            borderopacity="1"
+            inkscape:pageshadow="0"
+            inkscape:pageopacity="0"
+            inkscape:pagecheckerboard="1"
+            showgrid="false"
+            inkscape:snap-nodes="false"
+            inkscape:zoom="1.6230469"
+            inkscape:cx="187.30205"
+            inkscape:cy="251.68712"
+            inkscape:window-width="1918"
+            inkscape:window-height="1055"
+            inkscape:window-x="0"
+            inkscape:window-y="23"
+            inkscape:window-maximized="1"
+            inkscape:current-layer="layer2"/>
+    <g
+            inkscape:groupmode="layer"
+            id="layer1"
+            inkscape:label="Layer 1"
+            style="display:inline">
+        <path
+                fill="currentColor"
+                d="M 444.02046,4.0742461 28.240452,195.97424 c -47.97,22.39 -31.9800008,92.75 19.19,92.75 H 223.34046 v 175.91 c 0,51.17 70.36,67.17 92.75,19.19 l 191.9,-415.779994 c 15.99,-38.39 -25.59,-79.970001 -63.97,-63.9699999 z"
+                id="path77"
+                style="fill:#ffffff"/>
+    </g>
+    <g
+            inkscape:groupmode="layer"
+            id="layer2"
+            inkscape:label="Layer 2"
+            style="display:inline">
+        <path
+                fill="currentColor"
+                d="M 380.04964,68.13988 31.840983,197.02279 c -47.97,22.39 -32.78283816,88.26509 18.387127,88.32573 l 176.39274,0.20906 0.0694,177.96121 c 0.02,51.17 65.54367,64.35743 87.93367,16.37743 L 446.37561,129.44147 c 15.99,-38.389995 -27.94597,-77.301592 -66.32597,-61.30159 z"
+                id="path77-6"
+                style="display:inline"
+                sodipodi:nodetypes="ccscsccc"/>
+    </g>
+</svg>
