@@ -53,4 +53,13 @@ is to just work on projects.
 ### Screenshots
 
 ![Application look](screenshots/looks.png)
-Icons created by https://fontawesome.com
+
+### Warning
+
+1. Application is not mobile friendly (yet)
+2. Please do not set upload folder as your home directory or somewhere where you have important data!!! This application
+   need a lot more testing, and I need to learn a lot more so please just don't do it
+3. I do not take responsibility for any lost files(this application shouldn't be able to reach outside the upload folder
+   but maybe there are some edge cases, but still you would actually need to click delete or edit and submit )
+
+Icons used in project are from [FontAwesome](https://fontawesome.com/) 
