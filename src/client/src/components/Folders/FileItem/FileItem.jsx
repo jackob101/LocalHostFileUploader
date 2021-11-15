@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import DropdownMenu from "./Components/DropdownMenu";
 
 const FileItem = ({
     file,
     index,
     onEnterDirectory,
-    downloadImage,
+    downloadImage: downloadFile,
     submitEdit,
     toggleEdit,
     isEditing,
@@ -59,45 +60,13 @@ const FileItem = ({
 
             <div className="flex-grow-1"></div>
 
-            {!file.directory ? (
-                <>
-                    <button
-                        className="btn btn-link mx-1"
-                        onClick={() => downloadImage(file.name)}
-                    >
-                        <img
-                            src="/download-solid.svg"
-                            alt="Download"
-                            width="16px"
-                        />
-                    </button>
-                    <Link
-                        to={{
-                            pathname: "/note",
-                            state: {
-                                name: file.name,
-                                path: file.path,
-                                editing: true,
-                            },
-                        }}
-                    >
-                        Edit
-                    </Link>
-                </>
-            ) : (
-                ""
-            )}
-
-            <button className="btn btn-link" onClick={() => toggleEdit(index)}>
-                <img src="/edit-solid.svg" alt="Edit" width="16px" />
-            </button>
-
-            <button
-                className="btn btn-link"
-                onClick={() => deleteFile(file.path, file.name, file.directory)}
-            >
-                <img src="/trash-solid.svg" alt="Delete" width="16px" />
-            </button>
+            <DropdownMenu
+                file={file}
+                downloadFile={downloadFile}
+                toggleEdit={toggleEdit}
+                deleteFile={deleteFile}
+                index={index}
+            />
         </div>
     );
 };

@@ -30,7 +30,6 @@ const useListService = () => {
             })
             .then((response) => {
                 sortFileList(response.data.files);
-                console.log(response);
             });
     }, [path, backendUrl]);
 
@@ -136,7 +135,6 @@ const useListService = () => {
         if (filePath.length > 0) {
             filePath += "/" + name.current.value;
         }
-        console.log(filePath);
         formData.append("path", filePath);
         formData.append("directoryName", name.current.value);
 
@@ -184,7 +182,6 @@ const useListService = () => {
         formData.append("path", filePath);
 
         axios.post("/api/delete", formData).then((response) => {
-            console.log(response);
             if (response.data.deleted) {
                 let newFiles;
                 if (isDirectory) {

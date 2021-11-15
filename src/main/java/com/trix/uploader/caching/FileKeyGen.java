@@ -12,8 +12,12 @@ public class FileKeyGen implements KeyGenerator {
         String path = (String) params[0];
         int indexOf = path.lastIndexOf("/");
 
-        if (indexOf > 0) {
-            path = path.substring(0, indexOf);
+        if (path.length() > 0) {
+            if (indexOf > 0) {
+                path = path.substring(0, indexOf);
+            } else {
+                path = "";
+            }
         }
 
         return target.getClass().getSimpleName() + "_" + path;
