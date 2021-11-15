@@ -29,8 +29,6 @@ const FileItem = ({
         setNewName(e.target.value);
     };
 
-    console.log(file);
-
     return (
         <div className="d-flex flex-row my-2 align-items-center">
             <div className="me-3 fw-bold">{index + 1}</div>

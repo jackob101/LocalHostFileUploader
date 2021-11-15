@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.mapping;
 
-@Cacheable("files")
 @Service
 public class FileService {
 
@@ -59,8 +58,8 @@ public class FileService {
         return uploadDirectory.relativize(other).toString();
     }
 
-    @CacheEvict(cacheNames = "files", key = "#uploadRequestPath.toString()")
-    public Map<String, List<FileModel>> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
+    @CacheEvict(cacheNames = "files", keyGenerator = "parentKeyGen")
+    public Map<String, List<FileModel>> saveAll(Path uploadRequestPath, List<MultipartFile> files, Boolean override) {
 
         return files.stream()
                 .map(file -> save(file, uploadRequestPath, override))
@@ -86,7 +85,6 @@ public class FileService {
 
                 Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
                 File savedFile = new File(absolutePathUri);
-                System.out.println(savedFile.lastModified());
                 Instant modifiedInstant = Files.getLastModifiedTime(savedFile.toPath(), LinkOption.NOFOLLOW_LINKS).toInstant();
                 LocalDateTime modifiedDate = LocalDateTime.ofInstant(modifiedInstant, ZoneId.systemDefault());
 
@@ -108,7 +106,7 @@ public class FileService {
         return new SavingResult(fileModel);
     }
 
-    @Cacheable(cacheNames = "files", key = "#path")
+    @Cacheable(cacheNames = "files", keyGenerator = "parentKeyGen")
     public List<FileModel> getFilesUnderPath(String path) throws FileNotFoundException {
 
         ArrayList<FileModel> files = new ArrayList<>();
@@ -143,7 +141,7 @@ public class FileService {
         return files;
     }
 
-    @CacheEvict(cacheNames = "files", key = "#path")
+    @CacheEvict(cacheNames = "files", keyGenerator = "fileKeyGen")
     public FileModel createDirectory(String path, String directoryName) {
 
         Path relativePath = Paths.get(path);
@@ -151,7 +149,7 @@ public class FileService {
         if (relativePath.isAbsolute())
             throw new AbsolutePathException();
 
-        Path absolutePath = generateAbsoluteUploadPath(relativePath, directoryName);
+        Path absolutePath = generateAbsoluteUploadPath(relativePath);
 
         File file = new File(absolutePath.toUri());
         FileModel fileModel;
@@ -195,7 +193,7 @@ public class FileService {
         return new File(absolutePath.toUri());
     }
 
-    @CacheEvict(cacheNames = "files", key = "#path")
+    @CacheEvict(cacheNames = "files", keyGenerator = "fileKeyGen")
     public FileModel updateName(String path, String oldName, String newName) {
 
         Path absolutePath = generateAbsoluteUploadPath(Paths.get(path));
@@ -212,7 +210,7 @@ public class FileService {
 
     }
 
-    @CacheEvict(cacheNames = "files", key = "#path")
+    @CacheEvict(cacheNames = "files", keyGenerator = "fileKeyGen")
     public boolean delete(String path) {
         Path absolutePath = generateAbsoluteUploadPath(Paths.get(path));
         File file = new File(absolutePath.toUri());
@@ -226,8 +224,8 @@ public class FileService {
 
     }
 
-    @CacheEvict(value = "files", key = "#path")
-    public FileModel createFileFromNote(String note, String path, String fileName, Boolean editing) throws FileAlreadyExistsException {
+    @CacheEvict(value = "files", keyGenerator = "fileKeyGen")
+    public FileModel createFileFromNote(String path, String note, String fileName, Boolean editing) throws FileAlreadyExistsException {
         Path absolutePath = generateAbsoluteUploadPath(Paths.get(path));
 
         File newFile = new File(absolutePath.toUri());

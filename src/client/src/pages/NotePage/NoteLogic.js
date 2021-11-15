@@ -13,31 +13,29 @@ const useNoteLogic = () => {
         editing: location.state?.editing ? location.state.editing : false,
     });
 
-    const isTextFile = () => {
-        const words = formField.name.split(".");
+    const isTextFile = (name) => {
+        const words = name.split(".");
         return words[words.length - 1] === "txt";
     };
 
-    const checkName = () => {
+    const checkName = (name) => {
         //TODO Temporary check
-        return isTextFile();
+        return isTextFile(name);
     };
 
-    const fixName = () => {
-        let newName = formField.name + ".txt";
-        setFormField({ ...formField, name: newName });
+    const fixName = (name) => {
+        let newName = name + ".txt";
+        return newName;
     };
 
     useEffect(() => {
-        console.log(formField);
-        if (isTextFile()) {
+        if (isTextFile(formField.name)) {
             axios
                 .get("/api/get_file_content", {
                     params: { path: formField.path },
                 })
                 .then((response) => {
                     setFormField({ ...formField, content: response.data });
-                    console.log(response);
                 });
         }
     }, []);
@@ -45,12 +43,18 @@ const useNoteLogic = () => {
     const submitNote = (event) => {
         event.preventDefault();
         let formData = new FormData();
+        let name = formField.name;
+        let path = formField.path;
 
-        if (!checkName()) fixName();
+        if (!checkName(name)) name = fixName(name);
+        if (!formField.editing) {
+            path += path.length > 0 ? "/" : "";
+            path += name;
+        }
 
-        formData.append("name", formField.name);
+        formData.append("name", name);
         formData.append("content", formField.content);
-        formData.append("path", formField.path);
+        formData.append("path", path);
         formData.append("editing", formField.editing);
 
         axios

@@ -132,7 +132,12 @@ const useListService = () => {
     const onCreateNewFolder = async (event, name) => {
         event.preventDefault();
         let formData = new FormData();
-        formData.append("path", path.join("/"));
+        let filePath = path.join("/");
+        if (filePath.length > 0) {
+            filePath += "/" + name.current.value;
+        }
+        console.log(filePath);
+        formData.append("path", filePath);
         formData.append("directoryName", name.current.value);
 
         axios

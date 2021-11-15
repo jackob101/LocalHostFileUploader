@@ -49,7 +49,7 @@ class FileServiceTest {
     public void save_exception() {
         MultipartFile multipartFile = new MockMultipartFile(fileName, new byte[]{});
 
-        assertThrows(EmptyFileException.class, () -> fileService.saveAll(List.of(multipartFile), Paths.get(""), false));
+        assertThrows(EmptyFileException.class, () -> fileService.saveAll(Paths.get(""), List.of(multipartFile), false));
     }
 
     @Test
@@ -60,7 +60,7 @@ class FileServiceTest {
         MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, null, inputStream);
 
         //when
-        fileService.saveAll(List.of(multipartFile), Paths.get(""), false);
+        fileService.saveAll(Paths.get(""), List.of(multipartFile), false);
 
     }
 

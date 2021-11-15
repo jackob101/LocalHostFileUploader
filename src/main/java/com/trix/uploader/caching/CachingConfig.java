@@ -1,4 +1,4 @@
-package com.trix.uploader.config;
+package com.trix.uploader.caching;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -13,5 +13,15 @@ public class CachingConfig {
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager("files");
+    }
+
+    @Bean("parentKeyGen")
+    public ParentKeyGen keyGenerator() {
+        return new ParentKeyGen();
+    }
+
+    @Bean("fileKeyGen")
+    public FileKeyGen fileKeyGen() {
+        return new FileKeyGen();
     }
 }

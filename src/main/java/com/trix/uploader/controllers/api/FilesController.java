@@ -50,8 +50,8 @@ public class FilesController {
         Map<String, Object> response = new HashMap<>();
 
         Map<String, List<FileModel>> savedFiles = fileService.saveAll(
-                Arrays.asList(files),
                 Paths.get(path.orElse("")),
+                Arrays.asList(files),
                 override
         );
 
@@ -114,7 +114,7 @@ public class FilesController {
                                                 @RequestParam(value = "content") String content,
                                                 @RequestParam(value = "name") String name,
                                                 @RequestParam(value = "editing") Boolean editing) throws FileAlreadyExistsException {
-        FileModel fileFromNote = fileService.createFileFromNote(content, path, name, editing);
+        FileModel fileFromNote = fileService.createFileFromNote(path, content, name, editing);
         return new ResponseEntity<>(fileFromNote, HttpStatus.OK);
     }
 }
