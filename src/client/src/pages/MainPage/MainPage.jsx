@@ -38,6 +38,7 @@ const MainPage = () => {
                             <ControllsList
                                 changeCurrentPath={changeCurrentPath}
                                 onGoToParentDir={onGoToParentDir}
+                                path={path}
                             />
 
                             <FilesList

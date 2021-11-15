@@ -177,9 +177,9 @@ const useListService = () => {
     const deleteFile = (filePath, name, isDirectory) => {
         let formData = new FormData();
         formData.append("path", filePath);
-        formData.append("name", name);
 
         axios.post("/api/delete", formData).then((response) => {
+            console.log(response);
             if (response.data.deleted) {
                 let newFiles;
                 if (isDirectory) {

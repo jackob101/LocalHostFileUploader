@@ -1,6 +1,7 @@
 package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
+import com.trix.uploader.exceptions.NotATextFileException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,13 +10,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,16 +27,22 @@ class FileServiceTest {
     FileService fileService;
 
     String fileName = "textName.txt";
+    String filesPath = "test";
+    String fileContent = "This is example content of simple text file that is used for testing";
 
     @BeforeEach
-    void setUp() {
-        fileService = new FileService("/test");
+    void setUp() throws IOException {
+        fileService = new FileService(filesPath);
+        File dummyFile = new File(Paths.get(filesPath, fileName).toUri());
+        Files.createDirectories(dummyFile.toPath().getParent());
+        Files.copy(new ByteArrayInputStream(fileContent.getBytes()), dummyFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
     }
 
     @AfterEach
     void tearDown() {
-        File file = new File("./uploadContent/" + fileName);
-        file.delete();
+//        File file = new File("./uploadContent/" + fileName);
+//        file.delete();
     }
 
     @Test
@@ -56,10 +65,32 @@ class FileServiceTest {
     }
 
     @Test
-    public void pathTesting() throws IOException {
-        String uploadPathString = "/home/jackob/uploader/upload";
-        String relative = "uploader/upload";
+    public void getFileContent_success() throws FileNotFoundException {
 
+        FileInputStream result = fileService.getFileContent(fileName);
+
+        String resultText = new BufferedReader(new InputStreamReader(result)).lines().collect(Collectors.joining());
+
+        assertEquals(fileContent, resultText);
+
+    }
+
+    @Test
+    public void getFileContent_throw() {
+
+        assertThrows(NotATextFileException.class, () -> fileService.getFileContent("notExisting.png"));
+    }
+
+    @Test
+    public void getFileContent_throwDirectory() throws IOException {
+        String tempDir = "thisIsDirectory";
+        Path dirPath = Paths.get(filesPath, tempDir);
+        Files.createDirectory(dirPath);
+
+        assertThrows(NotATextFileException.class,
+                () -> fileService.getFileContent(dirPath.toString()));
+
+        Files.delete(dirPath);
 
     }
 

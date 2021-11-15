@@ -1,6 +1,7 @@
 package com.trix.uploader.services;
 
 import com.trix.uploader.exceptions.EmptyFileException;
+import com.trix.uploader.exceptions.NotATextFileException;
 import com.trix.uploader.exceptions.directory.NotADirectoryException;
 import com.trix.uploader.exceptions.path.AbsolutePathException;
 import com.trix.uploader.exceptions.renaming.RenamingException;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.*;
 import java.time.Instant;
@@ -48,6 +47,18 @@ public class FileService {
         return uploadDirectory.resolve(relativeUploadPath.resolve(cleanedFileName));
     }
 
+    private Path generateAbsoluteUploadPath(Path relativeUploadPath) {
+
+        if (relativeUploadPath.isAbsolute())
+            throw new AbsolutePathException();
+
+        return uploadDirectory.resolve(relativeUploadPath);
+    }
+
+    private String getRelativePath(Path other) {
+        return uploadDirectory.relativize(other).toString();
+    }
+
     @CacheEvict(cacheNames = "files", key = "#uploadRequestPath.toString()")
     public Map<String, List<FileModel>> saveAll(List<MultipartFile> files, Path uploadRequestPath, Boolean override) {
 
@@ -75,13 +86,13 @@ public class FileService {
 
                 Files.copy(file.getInputStream(), absolutePath, StandardCopyOption.REPLACE_EXISTING);
                 File savedFile = new File(absolutePathUri);
-
+                System.out.println(savedFile.lastModified());
                 Instant modifiedInstant = Files.getLastModifiedTime(savedFile.toPath(), LinkOption.NOFOLLOW_LINKS).toInstant();
                 LocalDateTime modifiedDate = LocalDateTime.ofInstant(modifiedInstant, ZoneId.systemDefault());
 
                 FileModel fileModel = new FileModel(
                         savedFile.getName(),
-                        uploadDirectory.resolve(absolutePath).toString(),
+                        getRelativePath(savedFile.toPath()),
                         savedFile.isDirectory(),
                         modifiedDate);
 
@@ -92,8 +103,8 @@ public class FileService {
             }
 
         }
-
-        FileModel fileModel = new FileModel(file.getName(), uploadRequestPath.toString());
+        File file1 = new File(absolutePathUri);
+        FileModel fileModel = new FileModel(file1.getName(), getRelativePath(file1.toPath()));
         return new SavingResult(fileModel);
     }
 
@@ -117,7 +128,7 @@ public class FileService {
 
         for (File entry : file.listFiles()) {
 
-            Instant fileTime = null;
+            Instant fileTime;
 
             try {
                 fileTime = Files.getLastModifiedTime(entry.toPath(), LinkOption.NOFOLLOW_LINKS).toInstant();
@@ -126,7 +137,7 @@ public class FileService {
             }
 
             LocalDateTime lastModified = LocalDateTime.ofInstant(fileTime, ZoneId.systemDefault());
-            files.add(new FileModel(entry.getName(), path, entry.isDirectory(), lastModified));
+            files.add(new FileModel(entry.getName(), getRelativePath(entry.toPath()), entry.isDirectory(), lastModified));
         }
 
         return files;
@@ -143,11 +154,11 @@ public class FileService {
         Path absolutePath = generateAbsoluteUploadPath(relativePath, directoryName);
 
         File file = new File(absolutePath.toUri());
-        FileModel fileModel = null;
+        FileModel fileModel;
 
         if (file.exists() && file.isDirectory()) {
 
-            fileModel = new FileModel(file.getName(), path, true);
+            fileModel = new FileModel(file.getName(), getRelativePath(file.toPath()), true);
 
         } else {
 
@@ -158,10 +169,21 @@ public class FileService {
             } catch (IOException e) {
                 pathToDirectory = absolutePath;
             }
-            fileModel = new FileModel(directoryName, relativePath.toString(), true);
+            fileModel = new FileModel(directoryName, getRelativePath(pathToDirectory), true);
         }
 
         return fileModel;
+
+    }
+
+    public FileInputStream getFileContent(String path) throws FileNotFoundException {
+
+        File file = getFile(path);
+
+        if (!file.exists() || file.isDirectory())
+            throw new NotATextFileException("Can only read content of file from text files");
+
+        return new FileInputStream(file);
 
     }
 
@@ -170,16 +192,14 @@ public class FileService {
         String normalized = StringUtils.cleanPath(path);
         Path absolutePath = uploadDirectory.resolve(normalized);
 
-
         return new File(absolutePath.toUri());
     }
 
     @CacheEvict(cacheNames = "files", key = "#path")
     public FileModel updateName(String path, String oldName, String newName) {
 
-        String normalizedPath = StringUtils.cleanPath(path);
-        Path absolutePath = uploadDirectory.resolve(Paths.get(path, oldName));
-        Path newAbsolutePath = uploadDirectory.resolve(Paths.get(normalizedPath, newName));
+        Path absolutePath = generateAbsoluteUploadPath(Paths.get(path));
+        Path newAbsolutePath = absolutePath.resolveSibling(newName);
 
         File file = getFile(absolutePath.toString());
         boolean isRenamed = file.renameTo(new File(newAbsolutePath.toUri()));
@@ -188,23 +208,43 @@ public class FileService {
             throw new RenamingException("File could not be renamed");
 
         File renamedFile = new File(newAbsolutePath.toUri());
-        return new FileModel(renamedFile.getName(), path, renamedFile.isDirectory());
+        return new FileModel(renamedFile.getName(), getRelativePath(file.toPath()), renamedFile.isDirectory());
 
     }
 
     @CacheEvict(cacheNames = "files", key = "#path")
-    public boolean delete(String path, String fileName) {
-
-        Path absolutePath = generateAbsoluteUploadPath(Paths.get(path), fileName);
-
+    public boolean delete(String path) {
+        Path absolutePath = generateAbsoluteUploadPath(Paths.get(path));
         File file = new File(absolutePath.toUri());
 
         if (file.isDirectory()) {
             Arrays.stream(file.listFiles())
-                    .forEach(entry -> delete(uploadDirectory.relativize(file.toPath()).toString(), entry.getName()));
+                    .forEach(entry -> delete(Paths.get(getRelativePath(file.toPath()), entry.getName()).toString()));
         }
 
         return file.delete();
 
+    }
+
+    @CacheEvict(value = "files", key = "#path")
+    public FileModel createFileFromNote(String note, String path, String fileName, Boolean editing) throws FileAlreadyExistsException {
+        Path absolutePath = generateAbsoluteUploadPath(Paths.get(path));
+
+        File newFile = new File(absolutePath.toUri());
+
+        if (!editing)
+            if (newFile.exists())
+                throw new FileAlreadyExistsException("File " + Paths.get(path, fileName) + " already exists. Please select different path or change file name");
+
+        try {
+            FileWriter fileWriter = new FileWriter(newFile);
+            fileWriter.write(note);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return new FileModel(newFile.getName(), getRelativePath(newFile.toPath()), false);
     }
 }

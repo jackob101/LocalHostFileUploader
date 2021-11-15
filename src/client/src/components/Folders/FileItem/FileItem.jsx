@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const FileItem = ({
     file,
@@ -27,6 +28,8 @@ const FileItem = ({
     const onChange = (e) => {
         setNewName(e.target.value);
     };
+
+    console.log(file);
 
     return (
         <div className="d-flex flex-row my-2 align-items-center">
@@ -59,16 +62,30 @@ const FileItem = ({
             <div className="flex-grow-1"></div>
 
             {!file.directory ? (
-                <button
-                    className="btn btn-link mx-1"
-                    onClick={() => downloadImage(file.name)}
-                >
-                    <img
-                        src="/download-solid.svg"
-                        alt="Download"
-                        width="16px"
-                    />
-                </button>
+                <>
+                    <button
+                        className="btn btn-link mx-1"
+                        onClick={() => downloadImage(file.name)}
+                    >
+                        <img
+                            src="/download-solid.svg"
+                            alt="Download"
+                            width="16px"
+                        />
+                    </button>
+                    <Link
+                        to={{
+                            pathname: "/note",
+                            state: {
+                                name: file.name,
+                                path: file.path,
+                                editing: true,
+                            },
+                        }}
+                    >
+                        Edit
+                    </Link>
+                </>
             ) : (
                 ""
             )}

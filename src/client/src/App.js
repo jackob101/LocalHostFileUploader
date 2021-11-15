@@ -3,6 +3,7 @@ import "./App.css";
 import Navbar from "./components/Navbar/Navbar";
 import MainPage from "./pages/MainPage/MainPage";
 import { Toaster } from "react-hot-toast";
+import Note from "./pages/NotePage/Note";
 
 function App() {
     return (
@@ -10,6 +11,9 @@ function App() {
             <Switch>
                 <Route path="/" exact>
                     <MainPage />
+                </Route>
+                <Route path="/note">
+                    <Note />
                 </Route>
             </Switch>
             <Toaster />

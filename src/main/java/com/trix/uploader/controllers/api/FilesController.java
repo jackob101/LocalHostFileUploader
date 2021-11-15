@@ -11,12 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -36,6 +36,11 @@ public class FilesController {
         return response;
     }
 
+    @GetMapping("get_file_content")
+    public String getFileContent(@RequestParam(value = "path") String path) throws FileNotFoundException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileService.getFile(path))));
+        return bufferedReader.lines().collect(Collectors.joining());
+    }
 
     @PostMapping(value = "upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files,
@@ -96,11 +101,20 @@ public class FilesController {
     }
 
     @PostMapping(value = "delete")
-    public ResponseEntity<Object> delete(@RequestParam(value = "path", defaultValue = "") String path, @RequestParam("name") String name) {
+    public ResponseEntity<Object> delete(@RequestParam(value = "path", defaultValue = "") String path) {
 
         HashMap<String, Object> responseBody = new HashMap<>();
-        responseBody.put("deleted", fileService.delete(path, name));
+        responseBody.put("deleted", fileService.delete(path));
 
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "new_note")
+    public ResponseEntity<Object> createNewNote(@RequestParam(value = "path", defaultValue = "") String path,
+                                                @RequestParam(value = "content") String content,
+                                                @RequestParam(value = "name") String name,
+                                                @RequestParam(value = "editing") Boolean editing) throws FileAlreadyExistsException {
+        FileModel fileFromNote = fileService.createFileFromNote(content, path, name, editing);
+        return new ResponseEntity<>(fileFromNote, HttpStatus.OK);
     }
 }
