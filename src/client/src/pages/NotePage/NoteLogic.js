@@ -73,7 +73,11 @@ const useNoteLogic = () => {
         setFormField({ ...formField, [event.target.name]: value });
     };
 
-    return { submitNote, onChange, formField };
+    const onCancel = () => {
+        history.push("");
+    };
+
+    return { submitNote, onChange, formField, onCancel };
 };
 
 export default useNoteLogic;

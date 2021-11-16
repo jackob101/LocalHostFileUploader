@@ -5,7 +5,7 @@ const DropdownMenu = (props) => {
     const generateDownload = () => {
         if (!props.file.directory)
             return (
-                <div className="dropdown-item w-100">
+                <div className="dropdown-item w-100 p-0">
                     <button
                         className="btn btn-link text-light text-decoration-none w-100"
                         onClick={() => props.downloadFile(props.file.name)}
@@ -19,7 +19,7 @@ const DropdownMenu = (props) => {
     const generateContentEdit = () => {
         if (!props.file.directory)
             return (
-                <div className="dropdown-item">
+                <div className="dropdown-item p-0">
                     <Link
                         className="btn btn-link text-light text-decoration-none w-100"
                         to={{
@@ -39,7 +39,7 @@ const DropdownMenu = (props) => {
 
     const generateNameEdit = () => {
         return (
-            <div className="dropdown-item">
+            <div className="dropdown-item p-0">
                 <button
                     className="btn btn-link text-light text-decoration-none w-100"
                     onClick={() => props.toggleEdit(props.index)}
@@ -52,7 +52,7 @@ const DropdownMenu = (props) => {
 
     const generateDelete = () => {
         return (
-            <div className="dropdown-item">
+            <div className="dropdown-item p-0">
                 <button
                     className="btn btn-link text-light text-decoration-none w-100"
                     onClick={() =>

@@ -2,7 +2,7 @@ import React from "react";
 import useNoteLogic from "./NoteLogic";
 
 const Note = () => {
-    const { submitNote, onChange, formField } = useNoteLogic();
+    const { submitNote, onChange, formField, onCancel } = useNoteLogic();
 
     return (
         <div className="d-flex flex-column col-lg-8 mx-auto">
@@ -12,6 +12,7 @@ const Note = () => {
                     File name
                 </label>
                 <input
+                    disabled={formField.editing}
                     type="text"
                     id="name"
                     name="name"
@@ -34,6 +35,13 @@ const Note = () => {
                 ></textarea>
                 <button type="submit" className="btn btn-primary my-3">
                     Submit
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-outline-danger"
+                    onClick={onCancel}
+                >
+                    Cancel
                 </button>
             </form>
         </div>
