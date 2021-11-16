@@ -21,9 +21,9 @@ const MainPage = () => {
     } = useListService();
 
     return (
-        <div className="container h-100">
-            <div className="row h-100">
-                <div className="col-lg-4 col-8 mx-auto">
+        <div className="container">
+            <div className="row col-12 h-100 m-0">
+                <div className="col-lg-4 col-12 mx-auto">
                     <UploadPanel onSubmit={onFilesSubmit} />
                 </div>
                 <div className="col d-flex flex-column border-start border-5  border-end">
@@ -52,10 +52,7 @@ const MainPage = () => {
                                 deleteFile={deleteFile}
                             />
                         </div>
-                        <div
-                            className="border-3 border-top p-3"
-                            style={{ height: "10%" }}
-                        >
+                        <div className="border-3 border-top p-3 container row align-items-center">
                             <NewDirectoryForm
                                 onCreateNewFolder={onCreateNewFolder}
                             />

@@ -13,8 +13,8 @@ const FilesList = (props) => {
     return (
         <div className="flex-grow-1 my-2 p-3">
             <div
-                className="d-flex flex-grow-1 flex-column overflow-auto"
-                style={{ maxHeight: "560px" }}
+                className="d-flex flex-grow-1 flex-column overflow-auto h-100"
+                style={{ maxHeight: "690px" }}
             >
                 {props.files.map((entry) =>
                     entry.map((entry) => {

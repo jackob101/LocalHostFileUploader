@@ -6,6 +6,8 @@ import { useHistory, useLocation } from "react-router-dom";
 const useNoteLogic = () => {
     const location = useLocation();
     const history = useHistory();
+
+    console.log(location);
     const [formField, setFormField] = useState({
         name: location.state?.name ? location.state.name : "",
         content: location.state?.content ? location.state.content : "",

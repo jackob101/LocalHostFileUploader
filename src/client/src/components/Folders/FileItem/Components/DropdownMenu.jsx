@@ -70,15 +70,15 @@ const DropdownMenu = (props) => {
     };
 
     return (
-        <div className="dropdown">
+        <div className="dropdown mx-2">
             <button
-                className="btn btn-primary dropdown-toggle"
+                className="btn btn-link"
                 type="button"
                 id="dropdownMenuDark"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
             >
-                Menu
+                <img src="bars-solid.svg" alt="Menu" width="22" />
             </button>
             <ul
                 className="dropdown-menu dropdown-menu-dark"

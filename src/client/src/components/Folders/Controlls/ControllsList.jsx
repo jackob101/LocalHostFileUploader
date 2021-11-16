@@ -1,15 +1,34 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import ControllItem from "./ControllItem";
 
 const ControllsList = (props) => {
+    const history = useHistory();
+
+    const onCreateNewNote = () => {
+        history.push("/note", {
+            editing: false,
+            path: props.path.join("/"),
+        });
+    };
+
     return (
-        <div className="d-flex flex-column mt-3">
+        <div className="d-flex flex-row">
             <ControllItem
                 onClick={() => props.changeCurrentPath(0)}
-                text=" < Go to root directory"
+                text="/"
+                title="Go to root directory"
             />
-            <ControllItem onClick={props.onGoToParentDir} text=" < Go up" />
+            <ControllItem
+                onClick={props.onGoToParentDir}
+                text=".."
+                title="Go back"
+            />
+            <ControllItem
+                onClick={onCreateNewNote}
+                text="+"
+                title="Create new note"
+            />
             <Link
                 to={{
                     pathname: "/note",
@@ -18,9 +37,7 @@ const ControllsList = (props) => {
                         path: props.path.join("/"),
                     },
                 }}
-            >
-                Create new note here
-            </Link>
+            ></Link>
         </div>
     );
 };

@@ -1,13 +1,16 @@
 import { Route, Switch } from "react-router";
 import "./App.css";
-import Navbar from "./components/Navbar/Navbar";
 import MainPage from "./pages/MainPage/MainPage";
 import { Toaster } from "react-hot-toast";
 import Note from "./pages/NotePage/Note";
 
 function App() {
     return (
-        <div className="App" style={{ maxHeight: "100vh" }}>
+        <div
+            // className="App"
+            style={{ minHeight: "100vh" }}
+            className="row"
+        >
             <Switch>
                 <Route path="/" exact>
                     <MainPage />

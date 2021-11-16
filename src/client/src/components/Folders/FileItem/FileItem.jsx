@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import DropdownMenu from "./Components/DropdownMenu";
 
 const FileItem = ({
@@ -34,16 +33,29 @@ const FileItem = ({
         <div className="d-flex flex-row my-2 align-items-center">
             <div className="me-3 fw-bold">{index + 1}</div>
             {isEditing ? (
-                <div>
-                    <input type="text" onChange={onChange} value={newName} />
+                <div className="d-flex flex-row">
+                    <input
+                        type="text"
+                        onChange={onChange}
+                        value={newName}
+                        className="form-control"
+                    />
                     <button
-                        className="btn btn-outline-primary"
+                        className="btn btn-outline-primary mx-2"
                         onClick={() => {
                             toggleEdit(index);
                             submitEdit(file.path, file.name, newName);
                         }}
                     >
                         Submit
+                    </button>
+                    <button
+                        className="btn btn-outline-danger"
+                        onClick={() => {
+                            toggleEdit(index);
+                        }}
+                    >
+                        Cancel
                     </button>
                 </div>
             ) : file.directory ? (
