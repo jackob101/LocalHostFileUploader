@@ -18,8 +18,8 @@ is to just work on projects.
 - [ ] Add functionality to change permissions
 - [ ] Set up https (Currently there is https implemented, but I turned it off because it was self-signed and caused
   trouble )
-- [ ] Add some sort of simple text editor to quickly create basic notes and upload it to server(in my case my pc)
-- [ ] Add option to edit text files
+- [x] ~~Add some sort of simple text editor to quickly create basic notes and upload it to server(in my case my pc)~~
+- [x] ~~Add option to edit text files~~
 - [ ] Maybe rework UI. I'm not sure yet
 
 ## How to use
