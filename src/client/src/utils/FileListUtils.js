@@ -130,34 +130,44 @@ const useListService = () => {
 
     const onCreateNewFolder = async (event, name) => {
         event.preventDefault();
-        let formData = new FormData();
-        let filePath = path.join("/");
-        if (filePath.length > 0) {
-            filePath += "/" + name.current.value;
+        if (
+            window.confirm(
+                "Are you sure you want to create new folder in current directory?"
+            )
+        ) {
+            let formData = new FormData();
+            let filePath = path.join("/");
+            if (filePath.length > 0) {
+                filePath += "/" + name.current.value;
+            } else {
+                filePath += name.current.value;
+            }
+            formData.append("path", filePath);
+            formData.append("directoryName", name.current.value);
+            axios
+                .post("/api/create_directory", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                })
+                .then((response) => {
+                    if (
+                        !files[0].some(
+                            (entry) =>
+                                entry.name === response.data.directory.name
+                        )
+                    ) {
+                        let newDirectories = [...files[0]];
+                        newDirectories.push(response.data.directory);
+                        newDirectories.sort((a, b) =>
+                            a.name.localeCompare(b.name)
+                        );
+                        setFiles([newDirectories, files[1]]);
+                        toast.success("Folder created successfully");
+                    } else {
+                        toast.error("Folder with this name already exists!");
+                    }
+                });
+            name.current.value = "";
         }
-        formData.append("path", filePath);
-        formData.append("directoryName", name.current.value);
-
-        axios
-            .post("/api/create_directory", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            })
-            .then((response) => {
-                if (
-                    !files[0].some(
-                        (entry) => entry.name === response.data.directory.name
-                    )
-                ) {
-                    let newDirectories = [...files[0]];
-                    newDirectories.push(response.data.directory);
-                    newDirectories.sort((a, b) => a.name.localeCompare(b.name));
-                    setFiles([newDirectories, files[1]]);
-                    toast.success("Folder created successfully");
-                } else {
-                    toast.error("Folder with this name already exists!");
-                }
-            });
-        name.current.value = "";
     };
 
     const submitEdit = (path, oldName, newName) => {

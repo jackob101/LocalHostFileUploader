@@ -17,7 +17,7 @@ const DropdownMenu = (props) => {
     };
 
     const generateContentEdit = () => {
-        if (!props.file.directory)
+        if (!props.file.directory && props.file.name.endsWith(".txt"))
             return (
                 <div className="dropdown-item p-0">
                     <Link

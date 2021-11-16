@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from "react/cjs/react.development";
 import DropdownMenu from "./Components/DropdownMenu";
 
 const FileItem = ({
@@ -25,10 +26,13 @@ const FileItem = ({
 
     const [newName, setNewName] = useState(file.name);
 
+    useEffect(() => {
+        setNewName(file.name);
+    }, [file]);
+
     const onChange = (e) => {
         setNewName(e.target.value);
     };
-
     return (
         <div className="d-flex flex-row my-2 align-items-center">
             <div className="me-3 fw-bold">{index + 1}</div>

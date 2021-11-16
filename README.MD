@@ -21,6 +21,7 @@ is to just work on projects.
 - [x] ~~Add some sort of simple text editor to quickly create basic notes and upload it to server(in my case my pc)~~
 - [x] ~~Add option to edit text files~~
 - [ ] Maybe rework UI. I'm not sure yet
+- [ ] Option to add description to folder. For example content from **desc.txt** will display inside separate section
 
 ## How to use
 

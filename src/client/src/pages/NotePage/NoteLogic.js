@@ -7,7 +7,6 @@ const useNoteLogic = () => {
     const location = useLocation();
     const history = useHistory();
 
-    console.log(location);
     const [formField, setFormField] = useState({
         name: location.state?.name ? location.state.name : "",
         content: location.state?.content ? location.state.content : "",
@@ -44,28 +43,33 @@ const useNoteLogic = () => {
 
     const submitNote = (event) => {
         event.preventDefault();
-        let formData = new FormData();
-        let name = formField.name;
-        let path = formField.path;
+        const dialogMessage = formField.editing
+            ? "Current file content will be overriden. Are you sure?"
+            : "New note will be created. Are you sure?";
+        if (window.confirm(dialogMessage)) {
+            let formData = new FormData();
+            let name = formField.name;
+            let path = formField.path;
 
-        if (!checkName(name)) name = fixName(name);
-        if (!formField.editing) {
-            path += path.length > 0 ? "/" : "";
-            path += name;
+            if (!checkName(name)) name = fixName(name);
+            if (!formField.editing) {
+                path += path.length > 0 ? "/" : "";
+                path += name;
+            }
+
+            formData.append("name", name);
+            formData.append("content", formField.content);
+            formData.append("path", path);
+            formData.append("editing", formField.editing);
+
+            axios
+                .post("/api/new_note", formData)
+                .then((response) => {
+                    toast.success("New file was created successfully");
+                    history.push("");
+                })
+                .catch((error) => toast.error(error.response.data));
         }
-
-        formData.append("name", name);
-        formData.append("content", formField.content);
-        formData.append("path", path);
-        formData.append("editing", formField.editing);
-
-        axios
-            .post("/api/new_note", formData)
-            .then((response) => {
-                toast.success("New file was created successfully");
-                history.push("");
-            })
-            .catch((error) => toast.error(error.response.data));
     };
 
     const onChange = (event) => {
