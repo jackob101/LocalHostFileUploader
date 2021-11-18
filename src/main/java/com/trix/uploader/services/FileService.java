@@ -1,10 +1,8 @@
 package com.trix.uploader.services;
 
-import com.trix.uploader.exceptions.EmptyFileException;
-import com.trix.uploader.exceptions.NotATextFileException;
-import com.trix.uploader.exceptions.directory.NotADirectoryException;
-import com.trix.uploader.exceptions.path.AbsolutePathException;
-import com.trix.uploader.exceptions.renaming.RenamingException;
+import com.trix.uploader.exceptions.fileException.FileException;
+import com.trix.uploader.exceptions.fileOperationException.FileOperationException;
+import com.trix.uploader.exceptions.path.PathException;
 import com.trix.uploader.model.FileModel;
 import com.trix.uploader.pojos.SavingResult;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +38,7 @@ public class FileService {
     private Path generateAbsoluteUploadPath(Path relativeUploadPath, String fileName) {
 
         if (relativeUploadPath.isAbsolute())
-            throw new AbsolutePathException();
+            throw new PathException("Path should not be absolute");
 
         Path cleanedFileName = Paths.get(fileName).getFileName();
         return uploadDirectory.resolve(relativeUploadPath.resolve(cleanedFileName));
@@ -49,7 +47,7 @@ public class FileService {
     private Path generateAbsoluteUploadPath(Path relativeUploadPath) {
 
         if (relativeUploadPath.isAbsolute())
-            throw new AbsolutePathException();
+            throw new PathException("Path should not be absolute");
 
         return uploadDirectory.resolve(relativeUploadPath);
     }
@@ -72,7 +70,7 @@ public class FileService {
     private SavingResult save(MultipartFile file, Path uploadRequestPath, Boolean override) {
 
         if (file == null || file.isEmpty())
-            throw new EmptyFileException();
+            throw new FileException("File should not be empty");
 
         Path absolutePath = generateAbsoluteUploadPath(uploadRequestPath, file.getOriginalFilename());
         URI absolutePathUri = absolutePath.toUri();
@@ -113,7 +111,7 @@ public class FileService {
         Path relativePath = Paths.get(path);
 
         if (relativePath.isAbsolute())
-            throw new AbsolutePathException();
+            throw new PathException("Path should not be absolute");
 
         Path absolutePath = uploadDirectory.resolve(path);
         File file = new File(absolutePath.toUri());
@@ -122,7 +120,7 @@ public class FileService {
             throw new FileNotFoundException();
 
         if (!file.isDirectory())
-            throw new NotADirectoryException();
+            throw new PathException("Path does not lead to directory");
 
         for (File entry : file.listFiles()) {
 
@@ -142,12 +140,12 @@ public class FileService {
     }
 
     @CacheEvict(cacheNames = "files", keyGenerator = "fileKeyGen")
-    public FileModel createDirectory(String path, String directoryName) {
+    public FileModel createDirectory(String path) {
 
         Path relativePath = Paths.get(path);
 
         if (relativePath.isAbsolute())
-            throw new AbsolutePathException();
+            throw new PathException("Path should not be absolute");
 
         Path absolutePath = generateAbsoluteUploadPath(relativePath);
 
@@ -167,7 +165,7 @@ public class FileService {
             } catch (IOException e) {
                 pathToDirectory = absolutePath;
             }
-            fileModel = new FileModel(directoryName, getRelativePath(pathToDirectory), true);
+            fileModel = new FileModel(file.getName(), getRelativePath(pathToDirectory), true);
         }
 
         return fileModel;
@@ -179,7 +177,7 @@ public class FileService {
         File file = getFile(path);
 
         if (!file.exists() || file.isDirectory())
-            throw new NotATextFileException("Can only read content of file from text files");
+            throw new FileException("Can only read content of file from text files");
 
         return new FileInputStream(file);
 
@@ -203,7 +201,7 @@ public class FileService {
         boolean isRenamed = file.renameTo(new File(newAbsolutePath.toUri()));
 
         if (!isRenamed)
-            throw new RenamingException("File could not be renamed");
+            throw new FileOperationException("File could not be renamed");
 
         File renamedFile = new File(newAbsolutePath.toUri());
         return new FileModel(renamedFile.getName(), getRelativePath(file.toPath()), renamedFile.isDirectory());

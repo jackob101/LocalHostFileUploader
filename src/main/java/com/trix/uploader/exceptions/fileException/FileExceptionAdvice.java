@@ -1,6 +1,5 @@
-package com.trix.uploader.exceptions.advices;
+package com.trix.uploader.exceptions.fileException;
 
-import com.trix.uploader.exceptions.FileException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

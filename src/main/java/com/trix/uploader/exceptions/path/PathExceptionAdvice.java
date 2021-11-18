@@ -1,6 +1,5 @@
-package com.trix.uploader.exceptions.renaming;
+package com.trix.uploader.exceptions.path;
 
-import com.trix.uploader.exceptions.path.AbsolutePathException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -11,12 +10,14 @@ import java.util.Collections;
 import java.util.List;
 
 @ControllerAdvice
-public class RenamingExceptionAdvice {
+public class PathExceptionAdvice {
 
     @ResponseBody
-    @ExceptionHandler(value = AbsolutePathException.class)
-    public ResponseEntity<Object> handleRenamingException(RenamingException ex) {
+    @ExceptionHandler(value = PathException.class)
+    public ResponseEntity<Object> absolutePathHandler(PathException ex) {
+
         List<String> errors = Collections.singletonList(ex.getMessage());
+        //TODO add some more info to response
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }

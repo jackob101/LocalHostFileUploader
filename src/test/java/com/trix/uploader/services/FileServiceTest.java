@@ -1,7 +1,6 @@
 package com.trix.uploader.services;
 
-import com.trix.uploader.exceptions.EmptyFileException;
-import com.trix.uploader.exceptions.NotATextFileException;
+import com.trix.uploader.exceptions.fileException.FileException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,20 +48,20 @@ class FileServiceTest {
     public void save_exception() {
         MultipartFile multipartFile = new MockMultipartFile(fileName, new byte[]{});
 
-        assertThrows(EmptyFileException.class, () -> fileService.saveAll(Paths.get(""), List.of(multipartFile), false));
+        assertThrows(FileException.class, () -> fileService.saveAll(Paths.get(""), List.of(multipartFile), false));
     }
-
-    @Test
-    public void save_success() throws IOException {
-        //given
-        byte[] data = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
-        InputStream inputStream = new ByteArrayInputStream(data);
-        MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, null, inputStream);
-
-        //when
-        fileService.saveAll(Paths.get(""), List.of(multipartFile), false);
-
-    }
+//
+//    @Test
+//    public void save_success() throws IOException {
+//        //given
+//        byte[] data = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
+//        InputStream inputStream = new ByteArrayInputStream(data);
+//        MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, null, inputStream);
+//
+//        //when
+//        fileService.saveAll(Paths.get(""), List.of(multipartFile), false);
+//
+//    }
 
     @Test
     public void getFileContent_success() throws FileNotFoundException {
@@ -78,7 +77,7 @@ class FileServiceTest {
     @Test
     public void getFileContent_throw() {
 
-        assertThrows(NotATextFileException.class, () -> fileService.getFileContent("notExisting.png"));
+        assertThrows(FileException.class, () -> fileService.getFileContent("notExisting.png"));
     }
 
     @Test
@@ -87,7 +86,7 @@ class FileServiceTest {
         Path dirPath = Paths.get(filesPath, tempDir);
         Files.createDirectory(dirPath);
 
-        assertThrows(NotATextFileException.class,
+        assertThrows(FileException.class,
                 () -> fileService.getFileContent(dirPath.toString()));
 
         Files.delete(dirPath);

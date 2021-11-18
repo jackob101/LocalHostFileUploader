@@ -1,4 +1,4 @@
-package com.trix.uploader.exceptions;
+package com.trix.uploader.exceptions.fileException;
 
 public class FileException extends RuntimeException {
 

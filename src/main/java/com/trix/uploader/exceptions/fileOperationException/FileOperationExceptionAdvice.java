@@ -1,4 +1,4 @@
-package com.trix.uploader.exceptions.path;
+package com.trix.uploader.exceptions.fileOperationException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,14 +10,12 @@ import java.util.Collections;
 import java.util.List;
 
 @ControllerAdvice
-public class AbsolutePathExceptionAdvice {
+public class FileOperationExceptionAdvice {
 
     @ResponseBody
-    @ExceptionHandler(value = AbsolutePathException.class)
-    public ResponseEntity<Object> absolutePathHandler(AbsolutePathException ex) {
-
+    @ExceptionHandler(value = FileOperationException.class)
+    public ResponseEntity<Object> handleRenamingException(FileOperationException ex) {
         List<String> errors = Collections.singletonList(ex.getMessage());
-        //TODO add some more info to response
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }
