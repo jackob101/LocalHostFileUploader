@@ -7,6 +7,7 @@ const ControllItem = (props) => {
                 className=" btn btn-outline-primary border-0 m-2"
                 onClick={props.onClick}
                 title={props.title}
+                disabled={props.disabled}
             >
                 {props.text}
             </button>

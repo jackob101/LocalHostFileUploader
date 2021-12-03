@@ -18,11 +18,13 @@ const ControllsList = (props) => {
                 onClick={() => props.changeCurrentPath(0)}
                 text="/"
                 title="Go to root directory"
+                disabled={props.path.length <= 0}
             />
             <ControllItem
                 onClick={props.onGoToParentDir}
                 text=".."
                 title="Go back"
+                disabled={props.path.length <= 0}
             />
             <ControllItem
                 onClick={onCreateNewNote}
