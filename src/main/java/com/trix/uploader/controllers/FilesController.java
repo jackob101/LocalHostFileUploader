@@ -16,7 +16,10 @@ import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,50 +34,53 @@ public class FilesController {
         this.pathValidator = new PathValidator();
     }
 
-    @GetMapping("getFiles")
-    public Map<String, Object> getFilesUnderPath(@RequestParam("path") String path) throws FileNotFoundException {
-
-        Map<String, Object> response = new HashMap<>();
+    @GetMapping("get_files")
+    public ResponseEntity<Object> getFilesUnderPath(@RequestParam("path") String path) throws FileNotFoundException {
 
         pathValidator.validate(path);
 
+        Map<String, Object> response = new HashMap<>();
         response.put("files", fileService.getFilesUnderPath(path));
         response.put("path", path);
 
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("get_file_content")
-    public String getFileContent(@RequestParam(value = "path") String path) throws FileNotFoundException {
+    public ResponseEntity<String> getFileContent(@RequestParam(value = "path") String path) throws FileNotFoundException {
 
         pathValidator.validate(path);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileService.getFile(path))));
-        return bufferedReader.lines().collect(Collectors.joining());
+        String response = bufferedReader.lines().collect(Collectors.joining());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(value = "upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, Object> uploadFiles(@RequestPart MultipartFile[] files,
-                                           @RequestPart Optional<String> path,
-                                           @RequestParam(required = false, defaultValue = "false") Boolean override) {
+    public ResponseEntity<Object> uploadFiles(@RequestPart MultipartFile[] files,
+                                              @RequestParam(required = false, defaultValue = "") String path,
+                                              @RequestParam(required = false, defaultValue = "false") Boolean override) {
 
         Map<String, Object> response = new HashMap<>();
 
-        pathValidator.validate(path.orElse(""));
+        pathValidator.validate(path);
 
         Map<String, List<FileModel>> savedFiles = fileService.saveAll(
-                Paths.get(path.orElse("")),
+                Paths.get(path),
                 Arrays.asList(files),
                 override
         );
 
         response.put("files", savedFiles);
 
-        return response;
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @PostMapping(value = "create_directory")
-    public Map<String, Object> createDirectory(@RequestPart(required = false) String path) {
+    public ResponseEntity<Object> createDirectory(@RequestPart(required = false) String path) {
         Map<String, Object> response = new HashMap<>();
 
         pathValidator.validate(path);
@@ -87,7 +93,9 @@ public class FilesController {
 
         response.put("directory", directory);
 
-        return response;
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
 
@@ -109,12 +117,15 @@ public class FilesController {
     }
 
     @PostMapping(value = "update")
-    public FileModel updateFileName(@RequestParam(value = "path", defaultValue = "") String path,
-                                    @RequestParam("oldName") String oldName,
-                                    @RequestParam("newName") String newName) {
+    public ResponseEntity<FileModel> updateFileName(@RequestParam(value = "path", defaultValue = "") String path,
+                                                    @RequestParam("oldName") String oldName,
+                                                    @RequestParam("newName") String newName) {
 
         pathValidator.validate(path);
-        return fileService.updateName(path, oldName, newName);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(fileService.updateName(path, oldName, newName));
 
     }
 
@@ -125,7 +136,7 @@ public class FilesController {
         HashMap<String, Object> responseBody = new HashMap<>();
         responseBody.put("deleted", fileService.delete(path));
 
-        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping(value = "new_note")
@@ -133,8 +144,10 @@ public class FilesController {
                                                 @RequestParam(value = "content") String content,
                                                 @RequestParam(value = "name") String name,
                                                 @RequestParam(value = "editing") Boolean editing) throws FileAlreadyExistsException {
+
         pathValidator.validate(path);
         FileModel fileFromNote = fileService.createFileFromNote(path, content, name, editing);
-        return new ResponseEntity<>(fileFromNote, HttpStatus.OK);
+
+        return ResponseEntity.ok(fileFromNote);
     }
 }
