@@ -34,7 +34,8 @@ const useListService = () => {
     }, [path, backendUrl]);
 
     const changeCurrentPath = (pathIndex) => {
-        setPath(path.splice(-1, pathIndex));
+        console.log(pathIndex);
+        setPath(path.slice(0, pathIndex));
     };
 
     const onEnterDirectory = (directory) => {

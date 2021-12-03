@@ -6,6 +6,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.MapBindingResult;
 import org.springframework.validation.Validator;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +29,10 @@ public class PathValidator implements Validator {
         if (matcher.find()) {
             errors.reject("illegal_characters", "Path variable contains illegal characters");
         }
+        Path relativePath = Paths.get(path);
+
+        if (relativePath.isAbsolute())
+            errors.reject("absolute_path", "Path should not be absolute. Please insert relative path");
 
     }
 
