@@ -23,7 +23,7 @@ const useListService = () => {
 
     useEffect(() => {
         axios
-            .get("/api/getFiles", {
+            .get("/api/get_files", {
                 params: {
                     path: path.join("/"),
                 },
@@ -34,7 +34,6 @@ const useListService = () => {
     }, [path, backendUrl]);
 
     const changeCurrentPath = (pathIndex) => {
-        console.log(pathIndex);
         setPath(path.slice(0, pathIndex));
     };
 
@@ -189,26 +188,33 @@ const useListService = () => {
     };
 
     const deleteFile = (filePath, name, isDirectory) => {
-        let formData = new FormData();
-        formData.append("path", filePath);
+        if (
+            window.confirm(
+                "Are you sure you want to delete seleted file/folder?"
+            )
+        ) {
+            let formData = new FormData();
+            formData.append("path", filePath);
 
-        axios.post("/api/delete", formData).then((response) => {
-            if (response.data.deleted) {
-                let newFiles;
-                if (isDirectory) {
-                    newFiles = [...files[0]];
-                } else {
-                    newFiles = [...files[1]];
-                }
-                newFiles = newFiles.filter((entry) => entry.name !== name);
+            axios.post("/api/delete", formData).then((response) => {
+                if (response.data.deleted) {
+                    let newFiles;
+                    if (isDirectory) {
+                        newFiles = [...files[0]];
+                    } else {
+                        newFiles = [...files[1]];
+                    }
+                    newFiles = newFiles.filter((entry) => entry.name !== name);
 
-                isDirectory
-                    ? setFiles([newFiles, files[1]])
-                    : setFiles([files[0], newFiles]);
+                    isDirectory
+                        ? setFiles([newFiles, files[1]])
+                        : setFiles([files[0], newFiles]);
 
-                toast.success("Successfully deleted");
-            } else toast.error("Error occured while deleting file/directory");
-        });
+                    toast.success("Successfully deleted");
+                } else
+                    toast.error("Error occured while deleting file/directory");
+            });
+        }
     };
 
     const updateData = (files, data, oldName) => {

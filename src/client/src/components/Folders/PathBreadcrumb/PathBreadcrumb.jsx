@@ -12,7 +12,7 @@ const PathBreadcrumb = ({ path, changeCurrentPath }) => {
                 >
                     <button
                         value={"/"}
-                        onClick={() => changeCurrentPath(1)}
+                        onClick={() => changeCurrentPath(0)}
                         className="btn btn-link p-0 m-0"
                         disabled={path.length === 0}
                     >
