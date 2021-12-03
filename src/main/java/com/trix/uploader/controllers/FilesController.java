@@ -9,7 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,7 +74,7 @@ public class FilesController {
     }
 
     @PostMapping(value = "create_directory")
-    public Map<String, Object> createDirectory(@Validated @RequestPart(required = false) String path) {
+    public Map<String, Object> createDirectory(@RequestPart(required = false) String path) {
         Map<String, Object> response = new HashMap<>();
 
         pathValidator.validate(path);
